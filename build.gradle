@@ -1,0 +1,40 @@
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+
+    dependencies {
+        classpath 'gradle.plugin.org.gradle.java:experimental-jigsaw:0.1.1'
+    }
+}
+
+subprojects {
+    group = 'gg.warcraft'
+    version = '1.0.0-SNAPSHOT'
+
+    apply plugin: 'java'
+    apply plugin: 'application'
+    apply plugin: 'org.gradle.java.experimental-jigsaw'
+
+    sourceCompatibility = 10
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        compile 'gg.warcraft:monolith-api:1.0.0-SNAPSHOT'
+
+        testCompile 'junit:junit:4.12'
+        testCompile 'org.mockito:mockito-core:2.18.3'
+        testCompile 'org.apache.commons:commons-lang3:3.3.1'
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-parameters'
+    }
+}
