@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Chat.iml" filepath="$PROJECT_DIR$/Chat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-api/chat-api.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-api/chat-api.iml" group="chat-api" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-api/chat-api_main.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-api/chat-api_main.iml" group="chat-api" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-api/chat-api_test.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-api/chat-api_test.iml" group="chat-api" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-app/chat-app.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-app/chat-app.iml" group="chat-app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-app/chat-app_main.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-app/chat-app_main.iml" group="chat-app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-app/chat-app_test.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-app/chat-app_test.iml" group="chat-app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-spigot/chat-spigot.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-spigot/chat-spigot.iml" group="chat-spigot" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-spigot/chat-spigot_main.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-spigot/chat-spigot_main.iml" group="chat-spigot" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/chat-spigot/chat-spigot_test.iml" filepath="$PROJECT_DIR$/.idea/modules/chat-spigot/chat-spigot_test.iml" group="chat-spigot" />
+    </modules>
+  </component>
+</project>
