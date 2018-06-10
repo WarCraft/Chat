@@ -1,0 +1,10 @@
+name: Monolith
+version: 1.0.0
+author: fishb6nes
+authors: [fishb6nes, Chau]
+website: http://warcraft.gg
+
+main: gg.warcraft.monolith.spigot.MonolithPlugin
+depend: [EffectLib]
+
+commands: []
