@@ -10,8 +10,8 @@ import java.util.function.Predicate;
 /**
  * This service is injectable.
  * <p>
- * The channel command service serves as a point of entry into the chat module implementation. It allows for easy
- * creation of global and local channels.
+ * The ChannelCommandService serves as a point of entry into the chat module implementation. It provides methods to
+ * create a new {@code Channel} and to join or leave one.
  * <p>
  * When creating new channels formatting string options include:
  * {channel.name}   The name of the channel
@@ -21,7 +21,7 @@ import java.util.function.Predicate;
  * {sender.color}   The color code of the sender's tag
  * {text}           The chat text
  * <p>
- * Examples:
+ * A message will always start with the color of the {@code Channel}. Examples:
  * string: "[{channel.name}] {sender.color}[{sender.tag}]{channel.color} {sender.name}: {text}"
  * output: GRAY[Global] RED[Admin]GRAY fishb6nes: testerino messagerino
  * <p>

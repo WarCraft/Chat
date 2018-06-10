@@ -11,36 +11,26 @@ import java.util.UUID;
 public interface ChatProfile {
 
     /**
-     * Returns the id of the player.
-     *
-     * @return The id of the player. Never null.
+     * @return The id of the player this profile belongs to. Never null.
      */
     UUID getPlayerId();
 
     /**
-     * Returns the name of the player in a chat context.
-     *
      * @return The name of the player in a chat context. Never null or empty.
      */
     String getName();
 
     /**
-     * Returns the chat tag of the player.
-     *
      * @return The chat tag of the player. Never null.
      */
     ChatTag getTag();
 
     /**
-     * Returns the home channel of the player.
-     *
      * @return The home channel of the player. Never null or empty.
      */
     String getHomeChannel();
 
     /**
-     * Returns all the names of the channels the player has specifically opted out of.
-     *
      * @return All the names of the channels the player has specifically opted out of. Never null, but can be empty.
      */
     Set<String> getOptedOut();
@@ -48,8 +38,7 @@ public interface ChatProfile {
     /**
      * Returns whether the player has opted out of the specified channel.
      * <p>
-     * This is a convenience method with results identical to
-     * getOptedOut().contains(channel.getName())
+     * This is a convenience method with results identical to {@code getOptedOut().contains(channel.getName())}.
      *
      * @param channel The channel to check.
      * @return True if the player has opted out of the specified channel, false otherwise.

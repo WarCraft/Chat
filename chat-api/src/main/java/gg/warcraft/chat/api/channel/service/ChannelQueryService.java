@@ -5,8 +5,9 @@ import gg.warcraft.chat.api.channel.Channel;
 /**
  * This service is injectable.
  * <p>
- * The channel query service serves as a point of entry into the chat module implementation. It allows you to query
- * registered channels by name or shortcut.
+ * The ChannelQueryService serves as a point of entry into the chat implementation. It provides methods to query the
+ * Monolith domain for a {@code Channel} by name, alias, or shortcut and to check a string for the presence of a
+ * shortcut.
  */
 public interface ChannelQueryService {
 
@@ -17,16 +18,14 @@ public interface ChannelQueryService {
     Channel getChannelByAlias(String alias);
 
     /**
-     * @param shortcut The shortcut of the channel.
-     * @return The channel with the specified shortcut. Can be null.
+     * @param shortcut The shortcut of the channel. Can not be null or empty.
+     * @return The channel belonging to the shortcut. Can be null.
      */
     Channel getChannelByShortcut(String shortcut);
 
     /**
-     * Attempts to find a channel which shortcut matches the start of the text string.
-     *
-     * @param text The text string to match the shortcut against.
-     * @return The channel with the matching shortcut. Can be null.
+     * @param text The text string to match the shortcut against. Can not be null or empty.
+     * @return The channel with a shortcut matching the start of the text. Can be null.
      */
     Channel findChannelWithMatchingShortcut(String text);
 }
