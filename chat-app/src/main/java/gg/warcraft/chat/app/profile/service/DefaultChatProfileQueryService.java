@@ -1,10 +1,10 @@
-package gg.warcrat.chat.app.profile.service;
+package gg.warcraft.chat.app.profile.service;
 
 import com.google.inject.Inject;
-import gg.warcraft.monolith.api.chat.profile.ChatProfile;
-import gg.warcraft.monolith.api.chat.profile.service.ChatProfileQueryService;
-import gg.warcraft.monolith.api.chat.profile.service.ChatProfileRepository;
-import gg.warcraft.monolith.app.chat.profile.ConsoleChatProfile;
+import gg.warcraft.chat.api.profile.ChatProfile;
+import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
+import gg.warcraft.chat.api.profile.service.ChatProfileRepository;
+import gg.warcraft.chat.app.profile.ConsoleChatProfile;
 
 import java.util.UUID;
 

@@ -1,8 +1,8 @@
-package gg.warcrat.chat.app.profile;
+package gg.warcraft.chat.app.profile;
 
-import gg.warcraft.monolith.api.chat.channel.Channel;
-import gg.warcraft.monolith.api.chat.profile.ChatProfile;
-import gg.warcraft.monolith.api.chat.profile.ChatTag;
+import gg.warcraft.chat.api.channel.Channel;
+import gg.warcraft.chat.api.profile.ChatProfile;
+import gg.warcraft.chat.api.profile.ChatTag;
 
 import java.util.HashSet;
 import java.util.Set;

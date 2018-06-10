@@ -1,9 +1,9 @@
-package gg.warcrat.chat.app.channel.service;
+package gg.warcraft.chat.app.channel.service;
 
 import com.google.inject.Inject;
-import gg.warcraft.monolith.api.chat.channel.Channel;
-import gg.warcraft.monolith.api.chat.channel.ChannelQueryService;
-import gg.warcraft.monolith.api.chat.channel.ChannelRepository;
+import gg.warcraft.chat.api.channel.Channel;
+import gg.warcraft.chat.api.channel.service.ChannelQueryService;
+import gg.warcraft.chat.api.channel.service.ChannelRepository;
 
 public class DefaultChannelQueryService implements ChannelQueryService {
     private final ChannelRepository repository;

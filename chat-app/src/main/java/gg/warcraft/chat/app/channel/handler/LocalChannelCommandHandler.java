@@ -1,13 +1,16 @@
-package gg.warcrat.chat.app.channel.handler;
+package gg.warcraft.chat.app.channel.handler;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import gg.warcraft.monolith.api.chat.message.Message;
-import gg.warcraft.monolith.api.chat.message.MessageCommandService;
-import gg.warcraft.monolith.api.chat.message.MessageFactory;
-import gg.warcraft.monolith.api.chat.profile.ChatProfile;
-import gg.warcraft.monolith.api.chat.profile.service.ChatProfileCommandService;
-import gg.warcraft.monolith.api.chat.profile.service.ChatProfileQueryService;
+import gg.warcraft.chat.api.message.Message;
+import gg.warcraft.chat.api.message.MessageCommandService;
+import gg.warcraft.chat.api.message.MessageFactory;
+import gg.warcraft.chat.api.profile.ChatProfile;
+import gg.warcraft.chat.api.profile.service.ChatProfileCommandService;
+import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
+import gg.warcraft.chat.app.MessageFormatter;
+import gg.warcraft.chat.app.channel.LocalChannel;
+import gg.warcraft.chat.app.logger.MessageLogger;
 import gg.warcraft.monolith.api.command.Command;
 import gg.warcraft.monolith.api.command.CommandHandler;
 import gg.warcraft.monolith.api.command.CommandSender;
@@ -16,9 +19,6 @@ import gg.warcraft.monolith.api.entity.player.Player;
 import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService;
 import gg.warcraft.monolith.api.entity.service.EntityQueryService;
 import gg.warcraft.monolith.api.world.Location;
-import gg.warcraft.monolith.app.chat.MessageFormatter;
-import gg.warcraft.monolith.app.chat.channel.LocalChannel;
-import gg.warcraft.monolith.app.chat.logger.MessageLogger;
 
 import java.util.Collection;
 import java.util.List;

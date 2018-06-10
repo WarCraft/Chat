@@ -1,7 +1,7 @@
-package gg.warcrat.chat.app.event;
+package gg.warcraft.chat.app.event;
 
-import gg.warcraft.monolith.api.chat.channel.Channel;
-import gg.warcraft.monolith.api.chat.event.PlayerHomeChannelChangedEvent;
+import gg.warcraft.chat.api.channel.Channel;
+import gg.warcraft.chat.api.event.PlayerHomeChannelChangedEvent;
 
 import java.util.UUID;
 

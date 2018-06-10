@@ -1,15 +1,15 @@
-package gg.warcrat.chat.app.channel.service;
+package gg.warcraft.chat.app.channel.service;
 
 import com.google.inject.Inject;
-import gg.warcraft.monolith.api.chat.channel.Channel;
-import gg.warcraft.monolith.api.chat.channel.ChannelCommandService;
-import gg.warcraft.monolith.api.chat.channel.ChannelRepository;
+import gg.warcraft.chat.api.channel.Channel;
+import gg.warcraft.chat.api.channel.service.ChannelCommandService;
+import gg.warcraft.chat.api.channel.service.ChannelRepository;
+import gg.warcraft.chat.app.channel.GlobalChannel;
+import gg.warcraft.chat.app.channel.LocalChannel;
 import gg.warcraft.monolith.api.command.CommandHandler;
 import gg.warcraft.monolith.api.command.service.CommandCommandService;
-import gg.warcraft.monolith.api.event.EventService;
+import gg.warcraft.monolith.api.core.EventService;
 import gg.warcraft.monolith.api.util.ColorCode;
-import gg.warcraft.monolith.app.chat.channel.GlobalChannel;
-import gg.warcraft.monolith.app.chat.channel.LocalChannel;
 
 import java.util.List;
 import java.util.UUID;
@@ -74,22 +74,20 @@ public class DefaultChannelCommandService implements ChannelCommandService {
     }
 
     @Override
-    public Channel createGlobalChannel(String name, List<String> aliases, String shortcut, ColorCode color,
-                                       String formattingString, Predicate<UUID> joinCondition) {
+    public void createGlobalChannel(String name, List<String> aliases, String shortcut, ColorCode color,
+                                    String formattingString, Predicate<UUID> joinCondition) {
         GlobalChannel channel = new GlobalChannel(name, aliases, shortcut, color, formattingString, joinCondition);
         CommandHandler commandHandler = commandHandlerFactory.createGlobalChannelCommandExecutor(channel);
         registerChannel(channel, commandHandler);
         eventService.subscribe(channel);
-        return channel;
     }
 
     @Override
-    public Channel createLocalChannel(String name, List<String> aliases, String shortcut, ColorCode color,
-                                      String formattingString, float radius) {
+    public void createLocalChannel(String name, List<String> aliases, String shortcut, ColorCode color,
+                                   String formattingString, float radius) {
         LocalChannel channel = new LocalChannel(name, aliases, shortcut, color, formattingString, radius);
         CommandHandler commandHandler = commandHandlerFactory.createLocalChannelCommandExecutor(channel);
         registerChannel(channel, commandHandler);
-        return channel;
     }
 
     @Override

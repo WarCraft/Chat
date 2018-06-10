@@ -1,8 +1,8 @@
-package gg.warcrat.chat.app.channel.service;
+package gg.warcraft.chat.app.channel.service;
 
 import com.google.inject.Singleton;
-import gg.warcraft.monolith.api.chat.channel.Channel;
-import gg.warcraft.monolith.api.chat.channel.ChannelRepository;
+import gg.warcraft.chat.api.channel.Channel;
+import gg.warcraft.chat.api.channel.service.ChannelRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;

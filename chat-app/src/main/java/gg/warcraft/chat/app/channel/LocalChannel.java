@@ -1,7 +1,7 @@
-package gg.warcrat.chat.app.channel;
+package gg.warcraft.chat.app.channel;
 
 import com.google.common.base.MoreObjects;
-import gg.warcraft.monolith.api.chat.channel.Channel;
+import gg.warcraft.chat.api.channel.Channel;
 import gg.warcraft.monolith.api.util.ColorCode;
 
 import java.util.List;

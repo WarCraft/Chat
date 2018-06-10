@@ -1,12 +1,12 @@
-package gg.warcrat.chat.app.profile.handler;
+package gg.warcraft.chat.app.profile.handler;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import gg.warcraft.monolith.api.chat.channel.Channel;
-import gg.warcraft.monolith.api.chat.channel.ChannelQueryService;
-import gg.warcraft.monolith.api.chat.profile.ChatProfile;
-import gg.warcraft.monolith.api.chat.profile.service.ChatProfileCommandService;
-import gg.warcraft.monolith.api.chat.profile.service.ChatProfileQueryService;
+import gg.warcraft.chat.api.channel.Channel;
+import gg.warcraft.chat.api.channel.service.ChannelQueryService;
+import gg.warcraft.chat.api.profile.ChatProfile;
+import gg.warcraft.chat.api.profile.service.ChatProfileCommandService;
+import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
 import gg.warcraft.monolith.api.entity.player.Player;
 import gg.warcraft.monolith.api.entity.player.event.PlayerConnectEvent;
 import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService;

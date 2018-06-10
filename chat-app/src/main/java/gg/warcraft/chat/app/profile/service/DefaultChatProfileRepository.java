@@ -1,14 +1,14 @@
-package gg.warcrat.chat.app.profile.service;
+package gg.warcraft.chat.app.profile.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import gg.warcraft.monolith.api.chat.profile.ChatProfile;
-import gg.warcraft.monolith.api.chat.profile.ChatTag;
-import gg.warcraft.monolith.api.chat.profile.service.ChatProfileRepository;
+import gg.warcraft.chat.api.profile.ChatProfile;
+import gg.warcraft.chat.api.profile.ChatTag;
+import gg.warcraft.chat.api.profile.service.ChatProfileRepository;
+import gg.warcraft.chat.app.profile.PlayerChatProfile;
+import gg.warcraft.chat.app.profile.PlayerChatTag;
 import gg.warcraft.monolith.api.data.DataService;
 import gg.warcraft.monolith.api.util.ColorCode;
-import gg.warcraft.monolith.app.chat.profile.PlayerChatProfile;
-import gg.warcraft.monolith.app.chat.profile.PlayerChatTag;
 
 import java.util.Arrays;
 import java.util.HashMap;

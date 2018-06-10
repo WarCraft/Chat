@@ -1,6 +1,6 @@
-package gg.warcrat.chat.app.logger;
+package gg.warcraft.chat.app.logger;
 
-import gg.warcraft.monolith.api.chat.message.Message;
+import gg.warcraft.chat.api.message.Message;
 
 public interface MessageLogger {
     void log(Message message);

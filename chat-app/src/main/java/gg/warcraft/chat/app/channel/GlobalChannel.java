@@ -1,8 +1,8 @@
-package gg.warcrat.chat.app.channel;
+package gg.warcraft.chat.app.channel;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.eventbus.Subscribe;
-import gg.warcraft.monolith.api.chat.channel.Channel;
+import gg.warcraft.chat.api.channel.Channel;
 import gg.warcraft.monolith.api.entity.player.event.PlayerConnectEvent;
 import gg.warcraft.monolith.api.entity.player.event.PlayerDisconnectEvent;
 import gg.warcraft.monolith.api.entity.player.event.PlayerPermissionsChangedEvent;

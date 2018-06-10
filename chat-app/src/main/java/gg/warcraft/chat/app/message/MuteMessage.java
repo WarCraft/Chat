@@ -1,8 +1,8 @@
-package gg.warcrat.chat.app.message;
+package gg.warcraft.chat.app.message;
 
 import com.google.inject.Inject;
-import gg.warcraft.monolith.api.chat.channel.Channel;
-import gg.warcraft.monolith.api.chat.message.Message;
+import gg.warcraft.chat.api.channel.Channel;
+import gg.warcraft.chat.api.message.Message;
 import gg.warcraft.monolith.api.command.CommandSender;
 import gg.warcraft.monolith.api.command.Console;
 import gg.warcraft.monolith.api.util.ColorCode;

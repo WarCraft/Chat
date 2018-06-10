@@ -1,18 +1,18 @@
-package gg.warcrat.chat.app;
+package gg.warcraft.chat.app;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import gg.warcraft.monolith.api.chat.ChatRouter;
-import gg.warcraft.monolith.api.chat.PriorityChatListener;
-import gg.warcraft.monolith.api.chat.channel.Channel;
-import gg.warcraft.monolith.api.chat.channel.ChannelQueryService;
-import gg.warcraft.monolith.api.chat.profile.ChatProfile;
-import gg.warcraft.monolith.api.chat.profile.service.ChatProfileQueryService;
+import gg.warcraft.chat.api.ChatRouter;
+import gg.warcraft.chat.api.PriorityChatListener;
+import gg.warcraft.chat.api.channel.Channel;
+import gg.warcraft.chat.api.channel.service.ChannelQueryService;
+import gg.warcraft.chat.api.profile.ChatProfile;
+import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
+import gg.warcraft.chat.app.event.NativeAsyncPlayerChatEvent;
 import gg.warcraft.monolith.api.command.service.CommandCommandService;
+import gg.warcraft.monolith.api.core.EventService;
 import gg.warcraft.monolith.api.core.TaskService;
-import gg.warcraft.monolith.api.event.EventService;
-import gg.warcraft.monolith.app.chat.event.NativeAsyncPlayerChatEvent;
 
 import java.util.HashMap;
 import java.util.Map;

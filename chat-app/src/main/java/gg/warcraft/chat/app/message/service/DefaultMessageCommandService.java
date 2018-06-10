@@ -1,9 +1,9 @@
-package gg.warcrat.chat.app.message.service;
+package gg.warcraft.chat.app.message.service;
 
 import com.google.inject.Inject;
-import gg.warcraft.monolith.api.chat.adapter.ChatServerAdapter;
-import gg.warcraft.monolith.api.chat.message.Message;
-import gg.warcraft.monolith.api.chat.message.MessageCommandService;
+import gg.warcraft.chat.api.message.Message;
+import gg.warcraft.chat.api.message.MessageCommandService;
+import gg.warcraft.chat.api.service.ChatServerAdapter;
 import gg.warcraft.monolith.api.core.AuthorizationService;
 
 import java.util.UUID;

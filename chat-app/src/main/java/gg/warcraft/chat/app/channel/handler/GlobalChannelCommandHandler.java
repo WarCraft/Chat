@@ -1,4 +1,4 @@
-package gg.warcrat.chat.app.channel.handler;
+package gg.warcraft.chat.app.channel.handler;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -8,12 +8,12 @@ import gg.warcraft.chat.api.message.MessageFactory;
 import gg.warcraft.chat.api.profile.ChatProfile;
 import gg.warcraft.chat.api.profile.service.ChatProfileCommandService;
 import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
+import gg.warcraft.chat.app.MessageFormatter;
+import gg.warcraft.chat.app.channel.GlobalChannel;
+import gg.warcraft.chat.app.logger.MessageLogger;
 import gg.warcraft.monolith.api.command.Command;
 import gg.warcraft.monolith.api.command.CommandHandler;
 import gg.warcraft.monolith.api.command.CommandSender;
-import gg.warcrat.chat.app.MessageFormatter;
-import gg.warcrat.chat.app.channel.GlobalChannel;
-import gg.warcrat.chat.app.logger.MessageLogger;
 
 import java.util.List;
 

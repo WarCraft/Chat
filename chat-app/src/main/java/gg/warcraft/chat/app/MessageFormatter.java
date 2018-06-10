@@ -1,7 +1,7 @@
-package gg.warcrat.chat.app;
+package gg.warcraft.chat.app;
 
-import gg.warcraft.monolith.api.chat.channel.Channel;
-import gg.warcraft.monolith.api.chat.profile.ChatProfile;
+import gg.warcraft.chat.api.channel.Channel;
+import gg.warcraft.chat.api.profile.ChatProfile;
 
 public class MessageFormatter {
     private final String formattingString;

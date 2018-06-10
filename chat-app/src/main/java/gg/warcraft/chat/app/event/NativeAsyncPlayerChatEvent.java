@@ -1,4 +1,4 @@
-package gg.warcrat.chat.app.event;
+package gg.warcraft.chat.app.event;
 
 import gg.warcraft.monolith.api.entity.player.event.PlayerEvent;
 
