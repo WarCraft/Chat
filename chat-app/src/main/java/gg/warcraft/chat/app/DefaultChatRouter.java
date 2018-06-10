@@ -5,9 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import gg.warcraft.chat.api.ChatRouter;
 import gg.warcraft.chat.api.PriorityChatListener;
-import gg.warcraft.chat.api.channel.Channel;
 import gg.warcraft.chat.api.channel.service.ChannelQueryService;
-import gg.warcraft.chat.api.profile.ChatProfile;
 import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
 import gg.warcraft.chat.app.event.NativeAsyncPlayerChatEvent;
 import gg.warcraft.monolith.api.command.service.CommandCommandService;
@@ -48,17 +46,17 @@ public class DefaultChatRouter implements ChatRouter {
 
     @Subscribe
     public void onNativeAsyncPlayerChatEvent(NativeAsyncPlayerChatEvent event) {
-        PriorityChatListener priorityListener = priorityListeners.remove(event.getPlayerId());
+        var priorityListener = priorityListeners.remove(event.getPlayerId());
         if (priorityListener != null) {
             // run on next sync tick as chat events are async
             taskService.runNextTick(() -> priorityListener.onChat(event.getPlayerId(), event.getText()));
             return;
         }
 
-        Channel channel = channelQueryService.findChannelWithMatchingShortcut(event.getText());
+        var channel = channelQueryService.findChannelWithMatchingShortcut(event.getText());
         String text;
         if (channel == null) {
-            ChatProfile profile = profileQueryService.getChatProfile(event.getPlayerId());
+            var profile = profileQueryService.getChatProfile(event.getPlayerId());
             channel = channelQueryService.getChannelByAlias(profile.getHomeChannel());
             if (channel == null) {
                 throw new IllegalStateException(String.format(HOME_CHANNEL_MISSING, event.getPlayerId()));
@@ -67,7 +65,7 @@ public class DefaultChatRouter implements ChatRouter {
         } else {
             text = event.getText().substring(channel.getShortcut().length()).trim();
         }
-        String command = String.format("%s %s", channel.getName(), text);
+        var command = String.format("%s %s", channel.getName(), text);
         commandCommandService.dispatchCommandFor(command, event.getPlayerId());
     }
 }

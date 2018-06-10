@@ -35,20 +35,20 @@ public class DefaultChatProfileRepository implements ChatProfileRepository {
 
     @Override
     public ChatProfile get(UUID playerId) {
-        Map<String, String> data = dataService.getMap(getDataKey(playerId));
+        var data = dataService.getMap(getDataKey(playerId));
         if (data.isEmpty()) {
             return null;
         }
-        String name = getNameFromData(data);
-        ChatTag tag = getTagFromData(data);
-        String homeChannel = getHomeChannelFromData(data);
-        Set<String> optedOut = getOptedOutFromData(data);
+        var name = getNameFromData(data);
+        var tag = getTagFromData(data);
+        var homeChannel = getHomeChannelFromData(data);
+        var optedOut = getOptedOutFromData(data);
         return new PlayerChatProfile(playerId, name, tag, homeChannel, optedOut);
     }
 
     @Override
     public void save(ChatProfile profile) {
-        Map<String, String> data = new HashMap<>();
+        var data = new HashMap<String, String>();
         mapNameToData(data, profile.getName());
         mapTagToData(data, profile.getTag());
         mapHomeChannelToData(data, profile.getHomeChannel());
@@ -65,8 +65,8 @@ public class DefaultChatProfileRepository implements ChatProfileRepository {
     }
 
     private ChatTag getTagFromData(Map<String, String> data) {
-        String tagName = data.get(TAG_NAME);
-        ColorCode tagColor = ColorCode.valueOf(data.get(TAG_COLOR));
+        var tagName = data.get(TAG_NAME);
+        var tagColor = ColorCode.valueOf(data.get(TAG_COLOR));
         return new PlayerChatTag(tagName, tagColor);
     }
 
@@ -75,8 +75,8 @@ public class DefaultChatProfileRepository implements ChatProfileRepository {
     }
 
     private Set<String> getOptedOutFromData(Map<String, String> data) {
-        String optedOutCsv = data.get(OPTED_OUT);
-        String[] optedOut = optedOutCsv.split(",");
+        var optedOutCsv = data.get(OPTED_OUT);
+        var optedOut = optedOutCsv.split(",");
         return new HashSet<>(Arrays.asList(optedOut));
     }
 
@@ -94,7 +94,7 @@ public class DefaultChatProfileRepository implements ChatProfileRepository {
     }
 
     private void mapOptedOutToData(Map<String, String> data, Set<String> optedOut) {
-        String optedOutCsv = String.join(",", optedOut.toArray(new String[0]));
+        var optedOutCsv = String.join(",", optedOut.toArray(new String[0]));
         data.put(OPTED_OUT, optedOutCsv);
     }
 }

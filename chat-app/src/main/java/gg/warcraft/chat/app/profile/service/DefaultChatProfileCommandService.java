@@ -2,9 +2,6 @@ package gg.warcraft.chat.app.profile.service;
 
 import com.google.inject.Inject;
 import gg.warcraft.chat.api.channel.Channel;
-import gg.warcraft.chat.api.event.PlayerHomeChannelChangedEvent;
-import gg.warcraft.chat.api.profile.ChatProfile;
-import gg.warcraft.chat.api.profile.ChatTag;
 import gg.warcraft.chat.api.profile.service.ChatProfileCommandService;
 import gg.warcraft.chat.api.profile.service.ChatProfileRepository;
 import gg.warcraft.chat.app.event.SimplePlayerHomeChannelChangedEvent;
@@ -14,7 +11,6 @@ import gg.warcraft.monolith.api.core.EventService;
 import gg.warcraft.monolith.api.util.ColorCode;
 
 import java.util.Collections;
-import java.util.Set;
 import java.util.UUID;
 
 public class DefaultChatProfileCommandService implements ChatProfileCommandService {
@@ -29,46 +25,46 @@ public class DefaultChatProfileCommandService implements ChatProfileCommandServi
 
     @Override
     public void createChatProfile(UUID playerId, String name, Channel homeChannel) {
-        ChatTag newTag = new PlayerChatTag("Wayfarer", ColorCode.WHITE);
-        String homeChannelName = homeChannel.getName();
-        ChatProfile newProfile = new PlayerChatProfile(playerId, name, newTag, homeChannelName, Collections.emptySet());
+        var newTag = new PlayerChatTag("Wayfarer", ColorCode.WHITE);
+        var homeChannelName = homeChannel.getName();
+        var newProfile = new PlayerChatProfile(playerId, name, newTag, homeChannelName, Collections.emptySet());
         repository.save(newProfile);
     }
 
     @Override
     public void setName(UUID playerId, String name) {
-        ChatProfile profile = repository.get(playerId);
-        ChatProfile newProfile = new PlayerChatProfile(playerId, name, profile.getTag(), profile.getHomeChannel(),
+        var profile = repository.get(playerId);
+        var newProfile = new PlayerChatProfile(playerId, name, profile.getTag(), profile.getHomeChannel(),
                 profile.getOptedOut());
         repository.save(newProfile);
     }
 
     @Override
     public void setTag(UUID playerId, String name, ColorCode color) {
-        ChatProfile profile = repository.get(playerId);
-        ChatTag newTag = new PlayerChatTag(name, color);
-        ChatProfile newProfile = new PlayerChatProfile(playerId, profile.getName(), newTag, profile.getHomeChannel(),
+        var profile = repository.get(playerId);
+        var newTag = new PlayerChatTag(name, color);
+        var newProfile = new PlayerChatProfile(playerId, profile.getName(), newTag, profile.getHomeChannel(),
                 profile.getOptedOut());
         repository.save(newProfile);
     }
 
     @Override
     public void setHomeChannel(UUID playerId, Channel channel) {
-        ChatProfile profile = repository.get(playerId);
-        ChatProfile newProfile = new PlayerChatProfile(playerId, profile.getName(), profile.getTag(), channel.getName(),
+        var profile = repository.get(playerId);
+        var newProfile = new PlayerChatProfile(playerId, profile.getName(), profile.getTag(), channel.getName(),
                 profile.getOptedOut());
         repository.save(newProfile);
 
-        PlayerHomeChannelChangedEvent event = new SimplePlayerHomeChannelChangedEvent(playerId, channel);
+        var event = new SimplePlayerHomeChannelChangedEvent(playerId, channel);
         eventService.publish(event);
     }
 
     @Override
     public void optOut(UUID playerId, Channel channel) {
-        ChatProfile profile = repository.get(playerId);
-        Set<String> newOptedOut = profile.getOptedOut();
+        var profile = repository.get(playerId);
+        var newOptedOut = profile.getOptedOut();
         if (newOptedOut.add(channel.getName())) {
-            ChatProfile newProfile = new PlayerChatProfile(playerId, profile.getName(), profile.getTag(),
+            var newProfile = new PlayerChatProfile(playerId, profile.getName(), profile.getTag(),
                     profile.getHomeChannel(), newOptedOut);
             repository.save(newProfile);
         }
@@ -76,10 +72,10 @@ public class DefaultChatProfileCommandService implements ChatProfileCommandServi
 
     @Override
     public void optIn(UUID playerId, Channel channel) {
-        ChatProfile profile = repository.get(playerId);
-        Set<String> newOptedOut = profile.getOptedOut();
+        var profile = repository.get(playerId);
+        var newOptedOut = profile.getOptedOut();
         if (newOptedOut.remove(channel.getName())) {
-            ChatProfile newProfile = new PlayerChatProfile(playerId, profile.getName(), profile.getTag(),
+            var newProfile = new PlayerChatProfile(playerId, profile.getName(), profile.getTag(),
                     profile.getHomeChannel(), newOptedOut);
             repository.save(newProfile);
         }

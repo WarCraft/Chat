@@ -2,10 +2,8 @@ package gg.warcraft.chat.app.channel.handler;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import gg.warcraft.chat.api.message.Message;
 import gg.warcraft.chat.api.message.MessageCommandService;
 import gg.warcraft.chat.api.message.MessageFactory;
-import gg.warcraft.chat.api.profile.ChatProfile;
 import gg.warcraft.chat.api.profile.service.ChatProfileCommandService;
 import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
 import gg.warcraft.chat.app.MessageFormatter;
@@ -47,15 +45,15 @@ public class GlobalChannelCommandHandler implements CommandHandler {
     }
 
     boolean onChatCommand(CommandSender sender, String text) {
-        ChatProfile senderProfile = sender.isPlayer()
+        var senderProfile = sender.isPlayer()
                 ? profileQueryService.getChatProfile(sender.getPlayerId())
                 : profileQueryService.getConsoleChatProfile();
-        String formattedText = formatter.format(channel, senderProfile, text);
-        Message message = messageFactory.createMessage(channel, sender, text, formattedText);
+        var formattedText = formatter.format(channel, senderProfile, text);
+        var message = messageFactory.createMessage(channel, sender, text, formattedText);
 
         channel.getRecipients().forEach(playerId -> messageCommandService.sendMessageToPlayer(message, playerId));
         if (channel.getRecipients().size() == 1) {
-            Message muteMessage = messageFactory.createMuteMessage();
+            var muteMessage = messageFactory.createMuteMessage();
             if (sender.isPlayer()) {
                 messageCommandService.sendMessageToPlayer(muteMessage, sender.getPlayerId());
             } else {
@@ -79,32 +77,32 @@ public class GlobalChannelCommandHandler implements CommandHandler {
                 if (arguments.isEmpty()) {
                     if (channel.getJoinCondition().test(sender.getPlayerId())) {
                         // TODO add player to channel recipients
-                        String joined = String.format(JOINED, channel.getName());
-                        Message joinedMessage = messageFactory.createServerMessage(joined);
+                        var joined = String.format(JOINED, channel.getName());
+                        var joinedMessage = messageFactory.createServerMessage(joined);
                         messageCommandService.sendMessageToPlayer(joinedMessage, sender.getPlayerId());
                         return true;
                     } else {
-                        String missingPermissions = String.format(MISSING_PERMISSIONS, channel.getName());
-                        Message missingPermissionsMessage = messageFactory.createServerMessage(missingPermissions);
+                        var missingPermissions = String.format(MISSING_PERMISSIONS, channel.getName());
+                        var missingPermissionsMessage = messageFactory.createServerMessage(missingPermissions);
                         messageCommandService.sendMessageToPlayer(missingPermissionsMessage, sender.getPlayerId());
                         return true;
                     }
                 } else {
-                    String notJoined = String.format(NOT_JOINED, channel.getName());
-                    Message notJoinedMessage = messageFactory.createServerMessage(notJoined);
+                    var notJoined = String.format(NOT_JOINED, channel.getName());
+                    var notJoinedMessage = messageFactory.createServerMessage(notJoined);
                     messageCommandService.sendMessageToPlayer(notJoinedMessage, sender.getPlayerId());
                     return true;
                 }
             }
         } else {
             if (arguments.isEmpty()) {
-                Message homeChannelPlayersOnly = messageFactory.createServerMessage(HOME_CHANNEL_PLAYERS_ONLY);
+                var homeChannelPlayersOnly = messageFactory.createServerMessage(HOME_CHANNEL_PLAYERS_ONLY);
                 messageCommandService.sendMessageToConsole(homeChannelPlayersOnly);
                 return true;
             }
         }
 
-        String text = String.join(" ", arguments);
+        var text = String.join(" ", arguments);
         return onChatCommand(sender, text);
     }
 }
