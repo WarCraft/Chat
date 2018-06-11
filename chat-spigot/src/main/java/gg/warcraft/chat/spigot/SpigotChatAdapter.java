@@ -1,7 +1,7 @@
-package gg.warcraft.monolith.spigot.chat;
+package gg.warcraft.chat.spigot;
 
 import com.google.inject.Inject;
-import gg.warcraft.monolith.api.chat.adapter.ChatServerAdapter;
+import gg.warcraft.chat.api.service.ChatServerAdapter;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 

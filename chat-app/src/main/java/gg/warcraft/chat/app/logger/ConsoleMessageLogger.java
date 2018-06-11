@@ -11,8 +11,8 @@ public class ConsoleMessageLogger implements MessageLogger {
 
     @Override
     public void log(Message message) {
-        var sender = message.getSender().getName();
-        var log = String.format("[%s] %s: %s", message.getChannel().getName(), sender, message.getOriginal());
+        String sender = message.getSender().getName();
+        String log = String.format("[%s] %s: %s", message.getChannel().getName(), sender, message.getOriginal());
         System.out.println(log);
     }
 }

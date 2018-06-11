@@ -38,7 +38,7 @@ public class DefaultChannelRepository implements ChannelRepository {
 
     @Override
     public void save(Channel channel) {
-        var name = channel.getName();
+        String name = channel.getName();
         if (name != null && !name.isEmpty()) {
             channelsByName.put(name, channel);
             channelsByAlias.put(name, channel);
@@ -50,7 +50,7 @@ public class DefaultChannelRepository implements ChannelRepository {
             }
         });
 
-        var shortcut = channel.getShortcut();
+        String shortcut = channel.getShortcut();
         if (shortcut != null && !shortcut.isEmpty()) {
             channelsByShortcut.put(shortcut, channel);
         }

@@ -1,12 +1,10 @@
 buildscript {
     repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
 
     dependencies {
-        classpath 'gradle.plugin.org.gradle.java:experimental-jigsaw:0.1.1'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     }
 }
 
@@ -15,10 +13,11 @@ subprojects {
     version = '1.0.0-SNAPSHOT'
 
     apply plugin: 'java'
-    apply plugin: 'application'
-    apply plugin: 'org.gradle.java.experimental-jigsaw'
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.github.johnrengelman.shadow'
 
-    sourceCompatibility = 10
+    sourceCompatibility = 1.8
 
     repositories {
         mavenLocal()
@@ -26,13 +25,29 @@ subprojects {
     }
 
     dependencies {
-        testCompile 'junit:junit:4.12'
-        testCompile 'org.mockito:mockito-core:2.18.3'
-        testCompile 'org.apache.commons:commons-lang3:3.3.1'
+        implementation 'gg.warcraft:monolith-api:1.0.0-SNAPSHOT'
+
+        testImplementation 'junit:junit:4.12'
+        testImplementation 'org.mockito:mockito-core:2.18.3'
+        testImplementation 'org.apache.commons:commons-lang3:3.3.1'
     }
 
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
         options.compilerArgs << '-parameters'
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) { from components.java }
+        }
+    }
+
+    publishing {
+        publications {
+            shadow(MavenPublication) {
+                project.shadow.component(it)
+            }
+        }
     }
 }

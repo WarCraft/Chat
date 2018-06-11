@@ -39,32 +39,32 @@ public class DefaultChannelCommandService implements ChannelCommandService {
     }
 
     private void registerChannel(Channel channel, CommandHandler commandHandler) {
-        var name = channel.getName();
+        String name = channel.getName();
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException(NAME_NULL_OR_EMPTY);
         } else if (repository.getByAlias(name) != null) {
-            var nameAlreadyExists = String.format(NAME_ALREADY_EXISTS, name);
+            String nameAlreadyExists = String.format(NAME_ALREADY_EXISTS, name);
             throw new IllegalArgumentException(nameAlreadyExists);
         }
 
-        var aliases = channel.getAliases();
+        List<String> aliases = channel.getAliases();
         aliases.forEach(alias -> {
             if (alias == null || alias.isEmpty()) {
-                var aliasNullOrEmpty = String.format(ALIAS_NULL_OR_EMPTY, name);
+                String aliasNullOrEmpty = String.format(ALIAS_NULL_OR_EMPTY, name);
                 throw new IllegalArgumentException(aliasNullOrEmpty);
             } else if (repository.getByAlias(alias) != null) {
-                var aliasAlreadyExists = String.format(ALIAS_ALREADY_EXISTS, name, alias);
+                String aliasAlreadyExists = String.format(ALIAS_ALREADY_EXISTS, name, alias);
                 throw new IllegalArgumentException(aliasAlreadyExists);
             }
         });
 
-        var shortcut = channel.getShortcut();
+        String shortcut = channel.getShortcut();
         if (shortcut != null) {
             if (shortcut.isEmpty()) {
-                var shortcutEmpty = String.format(SHORTCUT_EMPTY, name);
+                String shortcutEmpty = String.format(SHORTCUT_EMPTY, name);
                 throw new IllegalArgumentException(shortcutEmpty);
             } else if (repository.getByShortcut(shortcut) != null) {
-                var shortcutAlreadyExists = String.format(SHORTCUT_ALREADY_EXISTS, name, shortcut);
+                String shortcutAlreadyExists = String.format(SHORTCUT_ALREADY_EXISTS, name, shortcut);
                 throw new IllegalArgumentException(shortcutAlreadyExists);
             }
         }
@@ -76,8 +76,8 @@ public class DefaultChannelCommandService implements ChannelCommandService {
     @Override
     public void createGlobalChannel(String name, List<String> aliases, String shortcut, ColorCode color,
                                     String formattingString, Predicate<UUID> joinCondition) {
-        var channel = new GlobalChannel(name, aliases, shortcut, color, formattingString, joinCondition);
-        var commandHandler = commandHandlerFactory.createGlobalChannelCommandExecutor(channel);
+        GlobalChannel channel = new GlobalChannel(name, aliases, shortcut, color, formattingString, joinCondition);
+        CommandHandler commandHandler = commandHandlerFactory.createGlobalChannelCommandExecutor(channel);
         registerChannel(channel, commandHandler);
         eventService.subscribe(channel);
     }
@@ -85,8 +85,8 @@ public class DefaultChannelCommandService implements ChannelCommandService {
     @Override
     public void createLocalChannel(String name, List<String> aliases, String shortcut, ColorCode color,
                                    String formattingString, float radius) {
-        var channel = new LocalChannel(name, aliases, shortcut, color, formattingString, radius);
-        var commandHandler = commandHandlerFactory.createLocalChannelCommandExecutor(channel);
+        LocalChannel channel = new LocalChannel(name, aliases, shortcut, color, formattingString, radius);
+        CommandHandler commandHandler = commandHandlerFactory.createLocalChannelCommandExecutor(channel);
         registerChannel(channel, commandHandler);
     }
 

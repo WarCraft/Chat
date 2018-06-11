@@ -1,5 +1,5 @@
-javaModule.name = 'gg.warcraft.chat.app'
-
 dependencies {
-    compile project(':chat-api')
+    api project(':chat-app')
+
+    shadow('org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT') { exclude group: '*' }
 }

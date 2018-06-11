@@ -1,5 +1,3 @@
-javaModule.name = 'gg.warcraft.chat.app'
-
 dependencies {
-    compile project(':chat-api')
+    api project(':chat-api')
 }

@@ -4,10 +4,14 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import gg.warcraft.chat.api.channel.Channel;
 import gg.warcraft.chat.api.channel.service.ChannelQueryService;
+import gg.warcraft.chat.api.profile.ChatProfile;
 import gg.warcraft.chat.api.profile.service.ChatProfileCommandService;
 import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
+import gg.warcraft.monolith.api.entity.player.Player;
 import gg.warcraft.monolith.api.entity.player.event.PlayerConnectEvent;
 import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService;
+
+import java.util.UUID;
 
 public class ChatProfileInitializationHandler {
     private final ChatProfileCommandService profileCommandService;
@@ -33,13 +37,13 @@ public class ChatProfileInitializationHandler {
 
     @Subscribe
     public void onPlayerConnect(PlayerConnectEvent event) {
-        var playerId = event.getPlayerId();
-        var profile = profileQueryService.getChatProfile(playerId);
+        UUID playerId = event.getPlayerId();
+        ChatProfile profile = profileQueryService.getChatProfile(playerId);
         if (profile == null) {
-            var player = playerQueryService.getPlayer(playerId);
+            Player player = playerQueryService.getPlayer(playerId);
             profileCommandService.createChatProfile(playerId, player.getDisplayName(), defaultChannel);
         } else {
-            var homeChannel = channelQueryService.getChannelByAlias(profile.getHomeChannel());
+            Channel homeChannel = channelQueryService.getChannelByAlias(profile.getHomeChannel());
             if (homeChannel == null) {
                 profileCommandService.setHomeChannel(playerId, defaultChannel);
             }

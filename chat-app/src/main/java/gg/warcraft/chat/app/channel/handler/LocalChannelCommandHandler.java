@@ -2,8 +2,10 @@ package gg.warcraft.chat.app.channel.handler;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import gg.warcraft.chat.api.message.Message;
 import gg.warcraft.chat.api.message.MessageCommandService;
 import gg.warcraft.chat.api.message.MessageFactory;
+import gg.warcraft.chat.api.profile.ChatProfile;
 import gg.warcraft.chat.api.profile.service.ChatProfileCommandService;
 import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
 import gg.warcraft.chat.app.MessageFormatter;
@@ -55,7 +57,7 @@ public class LocalChannelCommandHandler implements CommandHandler {
     }
 
     Collection<UUID> getNearbyPlayerIds(Location location) {
-        var nearbyEntities = entityQueryService.getNearbyEntities(location, channel.getRadius());
+        List<Entity> nearbyEntities = entityQueryService.getNearbyEntities(location, channel.getRadius());
         return nearbyEntities.stream()
                 .filter(entity -> entity instanceof Player)
                 .map(Entity::getId)
@@ -63,17 +65,17 @@ public class LocalChannelCommandHandler implements CommandHandler {
     }
 
     boolean onPlayerChatCommand(CommandSender sender, String text) {
-        var senderProfile = sender.isPlayer()
+        ChatProfile senderProfile = sender.isPlayer()
                 ? profileQueryService.getChatProfile(sender.getPlayerId())
                 : profileQueryService.getConsoleChatProfile();
-        var formattedText = formatter.format(channel, senderProfile, text);
-        var message = messageFactory.createMessage(channel, sender, text, formattedText);
-        var player = playerQueryService.getPlayer(sender.getPlayerId());
-        var recipientIds = getNearbyPlayerIds(player.getLocation());
+        String formattedText = formatter.format(channel, senderProfile, text);
+        Message message = messageFactory.createMessage(channel, sender, text, formattedText);
+        Player player = playerQueryService.getPlayer(sender.getPlayerId());
+        Collection<UUID> recipientIds = getNearbyPlayerIds(player.getLocation());
         recipientIds.forEach(recipient -> messageCommandService.sendMessageToPlayer(message, recipient));
         messageCommandService.sendMessageToPlayer(message, sender.getPlayerId()); // FIXME this currently masks an issue with getNearbyPlayerIds, remove this when Local channels properly send messages to nearby players
         if (recipientIds.size() == 1) {
-            var muteMessage = messageFactory.createMuteMessage();
+            Message muteMessage = messageFactory.createMuteMessage();
             messageCommandService.sendMessageToPlayer(muteMessage, sender.getPlayerId());
         }
 
@@ -84,7 +86,7 @@ public class LocalChannelCommandHandler implements CommandHandler {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, List<String> arguments) {
         if (!sender.isPlayer()) {
-            var playersOnlyMessage = messageFactory.createServerMessage(PLAYERS_ONLY);
+            Message playersOnlyMessage = messageFactory.createServerMessage(PLAYERS_ONLY);
             messageCommandService.sendMessageToConsole(playersOnlyMessage);
             return true;
         }
@@ -94,7 +96,7 @@ public class LocalChannelCommandHandler implements CommandHandler {
             return true;
         }
 
-        var text = String.join(" ", arguments);
+        String text = String.join(" ", arguments);
         return onPlayerChatCommand(sender, text);
     }
 }

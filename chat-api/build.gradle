@@ -1,5 +1,0 @@
-javaModule.name = 'gg.warcraft.chat.api'
-
-dependencies {
-    compile 'gg.warcraft:monolith-api:1.0.0-SNAPSHOT'
-}
