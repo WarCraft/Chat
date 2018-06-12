@@ -30,6 +30,16 @@ public interface ChannelRepository {
     Channel getByShortcut(String shortcut);
 
     /**
+     * @return The default channel. Can be null.
+     */
+    Channel getDefaultChannel();
+
+    /**
+     * @param channel The channel. Can not be null.
+     */
+    void setDefaultChannel(Channel channel);
+
+    /**
      * @param channel The channel to save.
      */
     void save(Channel channel);

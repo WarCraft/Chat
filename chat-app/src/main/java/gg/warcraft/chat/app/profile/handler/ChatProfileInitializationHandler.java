@@ -19,8 +19,6 @@ public class ChatProfileInitializationHandler {
     private final ChannelQueryService channelQueryService;
     private final PlayerQueryService playerQueryService;
 
-    private Channel defaultChannel;
-
     @Inject
     public ChatProfileInitializationHandler(ChatProfileCommandService profileCommandService,
                                             ChatProfileQueryService profileQueryService, ChannelQueryService channelQueryService,
@@ -31,20 +29,18 @@ public class ChatProfileInitializationHandler {
         this.playerQueryService = playerQueryService;
     }
 
-    public void setDefaultChannel(Channel defaultChannel) {
-        this.defaultChannel = defaultChannel;
-    }
-
     @Subscribe
     public void onPlayerConnect(PlayerConnectEvent event) {
         UUID playerId = event.getPlayerId();
         ChatProfile profile = profileQueryService.getChatProfile(playerId);
         if (profile == null) {
             Player player = playerQueryService.getPlayer(playerId);
+            Channel defaultChannel = channelQueryService.getDefaultChannel();
             profileCommandService.createChatProfile(playerId, player.getDisplayName(), defaultChannel);
         } else {
             Channel homeChannel = channelQueryService.getChannelByAlias(profile.getHomeChannel());
             if (homeChannel == null) {
+                Channel defaultChannel = channelQueryService.getDefaultChannel();
                 profileCommandService.setHomeChannel(playerId, defaultChannel);
             }
         }

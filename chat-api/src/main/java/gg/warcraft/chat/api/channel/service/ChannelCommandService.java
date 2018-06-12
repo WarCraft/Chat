@@ -31,6 +31,13 @@ import java.util.function.Predicate;
 public interface ChannelCommandService {
 
     /**
+     * @param alias The name or alias of the channel to set. Can not be null or empty.
+     * @throws IllegalArgumentException Thrown when any of the parameter constraints are not met or if no channel was
+     *                                  found for the given alias.
+     */
+    void setDefaultChannel(String alias) throws IllegalArgumentException;
+
+    /**
      * @param name             The name of the channel.
      * @param aliases          An optional aliases of the channel. Can not be null, but can be empty. Items can not be
      *                         null or empty.

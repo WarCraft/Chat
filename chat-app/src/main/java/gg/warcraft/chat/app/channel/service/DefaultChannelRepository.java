@@ -15,6 +15,8 @@ public class DefaultChannelRepository implements ChannelRepository {
     final Map<String, Channel> channelsByAlias;
     final Map<String, Channel> channelsByShortcut;
 
+    Channel defaultChannel;
+
     public DefaultChannelRepository() {
         this.channelsByName = new HashMap<>();
         this.channelsByAlias = new HashMap<>();
@@ -34,6 +36,16 @@ public class DefaultChannelRepository implements ChannelRepository {
     @Override
     public Channel getByShortcut(String shortcut) {
         return channelsByShortcut.get(shortcut);
+    }
+
+    @Override
+    public Channel getDefaultChannel() {
+        return defaultChannel;
+    }
+
+    @Override
+    public void setDefaultChannel(Channel channel) {
+        defaultChannel = channel;
     }
 
     @Override

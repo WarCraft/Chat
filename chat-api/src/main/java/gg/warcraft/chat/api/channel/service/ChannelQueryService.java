@@ -24,6 +24,11 @@ public interface ChannelQueryService {
     Channel getChannelByShortcut(String shortcut);
 
     /**
+     * @return The default channel. Can be null.
+     */
+    Channel getDefaultChannel();
+
+    /**
      * @param text The text string to match the shortcut against. Can not be null or empty.
      * @return The channel with a shortcut matching the start of the text. Can be null.
      */

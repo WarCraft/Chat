@@ -22,6 +22,7 @@ public class DefaultChannelCommandService implements ChannelCommandService {
     private static final String ALIAS_ALREADY_EXISTS = "Failed to create channel '%s', alias '%s' already exists";
     private static final String SHORTCUT_EMPTY = "Failed to create channel '%s' with empty shortcut.";
     private static final String SHORTCUT_ALREADY_EXISTS = "Failed to create channel '%s', shortcut '%s' already exists";
+    private static final String CHANNEL_NOT_FOUND = "Failed to set default channel '%s', channel not found.";
 
     private final ChannelRepository repository;
     private final ChannelCommandHandlerFactory commandHandlerFactory;
@@ -36,6 +37,16 @@ public class DefaultChannelCommandService implements ChannelCommandService {
         this.commandHandlerFactory = commandHandlerFactory;
         this.commandCommandService = commandCommandService;
         this.eventService = eventService;
+    }
+
+    @Override
+    public void setDefaultChannel(String alias) throws IllegalArgumentException {
+        Channel channel = repository.getByAlias(alias);
+        if (channel == null) {
+            String channelNotFound = String.format(CHANNEL_NOT_FOUND, alias);
+            throw new IllegalArgumentException(channelNotFound);
+        }
+        repository.setDefaultChannel(channel);
     }
 
     private void registerChannel(Channel channel, CommandHandler commandHandler) {

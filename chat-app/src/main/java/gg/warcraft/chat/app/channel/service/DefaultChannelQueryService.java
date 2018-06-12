@@ -24,6 +24,11 @@ public class DefaultChannelQueryService implements ChannelQueryService {
     }
 
     @Override
+    public Channel getDefaultChannel() {
+        return repository.getDefaultChannel();
+    }
+
+    @Override
     public Channel findChannelWithMatchingShortcut(String text) {
         return repository.getAll().stream()
                 .filter(channel -> channel.getShortcut() != null)
