@@ -35,6 +35,8 @@ localChannels:
     formattingString: {sender.color}[{sender.tag}] {channel.color}{sender.name}: {text}
     radius: 30
 
+defaultChannel: Global
+
 # LOGGING
 # Options: [CONSOLE, NOOP]
 # ------------------------------------------------------------
