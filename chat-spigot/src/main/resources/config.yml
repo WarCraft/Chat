@@ -1,0 +1,47 @@
+configurationFileName: relative/path/to/config.yml
+
+# CHAT CONFIGURATION
+# ------------------------------------------------------------
+# Everything below this line is part of the chat configuration.
+# If you are using a non-LOCAL configuration service in your
+# Monolith configuration you have to copy paste this to your
+# configuration file storage in a file with name identical to
+# the 'configurationFileName' as configured above. This file
+# name should be the relative path from the root of your file
+# storage as configured in the Monolith configuration.
+#
+# Even if you are using a non-LOCAL configuration service this
+# local configuration file has to be present for the plugin to
+# read the name of the file it should ask Monolith for.
+#
+# If you are using a LOCAL configuration service you can ignore
+# the 'configurationFileName' setting. The plugin will use what
+# is configured in this file instead.
+
+# CHANNELS
+globalChannels:
+  - name: Global
+    aliases: []
+    shortcut: null
+    color: GRAY
+    formattingString: [{channel.name}] {sender.color}[{sender.tag}] {channel.color}{sender.name}: {text}
+    requiredPermission:
+
+localChannels:
+  - name: Local
+    aliases: [say, s, rp]
+    shortcut: ((
+    color: WHITE
+    formattingString: {sender.color}[{sender.tag}] {channel.color}{sender.name}: {text}
+    radius: 30
+
+# LOGGING
+# Options: [CONSOLE, NOOP]
+# ------------------------------------------------------------
+# If CONSOLE all messages in all channels will be printed to
+# the console (in an unformatted form to improve readability).
+# If NOOP (No Operation) no messages will be logged.
+# The option to log to cloud services is on the to-do list,
+# but low priority. If you need an alternative implementation
+# right now please consider opening a pull request.
+messageLogger: CONSOLE
