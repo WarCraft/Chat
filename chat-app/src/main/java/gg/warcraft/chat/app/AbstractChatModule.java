@@ -1,6 +1,5 @@
 package gg.warcraft.chat.app;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import gg.warcraft.chat.api.ChatRouter;
@@ -27,9 +26,10 @@ import gg.warcraft.chat.app.message.service.DefaultMessageCommandService;
 import gg.warcraft.chat.app.profile.service.DefaultChatProfileCommandService;
 import gg.warcraft.chat.app.profile.service.DefaultChatProfileQueryService;
 import gg.warcraft.chat.app.profile.service.DefaultChatProfileRepository;
+import gg.warcraft.monolith.api.MonolithModule;
 import gg.warcraft.monolith.api.command.CommandHandler;
 
-public class AbstractChatModule extends AbstractModule {
+public abstract class AbstractChatModule extends MonolithModule {
 
     @Override
     protected void configure() {
