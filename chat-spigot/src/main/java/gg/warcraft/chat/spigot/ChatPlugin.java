@@ -4,6 +4,7 @@ import com.google.inject.Injector;
 import gg.warcraft.chat.api.ChatRouter;
 import gg.warcraft.chat.api.channel.service.ChannelCommandService;
 import gg.warcraft.chat.api.config.ChatConfiguration;
+import gg.warcraft.chat.app.AbstractChatModule;
 import gg.warcraft.chat.app.profile.handler.ChatProfileInitializationHandler;
 import gg.warcraft.monolith.api.Monolith;
 import gg.warcraft.monolith.api.config.service.ConfigurationCommandService;
@@ -93,7 +94,8 @@ public class ChatPlugin extends JavaPlugin {
         saveDefaultConfig();
         FileConfiguration localConfig = getConfig();
         String messageLoggerType = localConfig.getString("messageLogger");
-        SpigotChatModule.setMessageLoggerType(messageLoggerType);
+        AbstractChatModule.setLogger(getLogger());
+        AbstractChatModule.setMessageLoggerType(messageLoggerType);
     }
 
     @Override

@@ -18,6 +18,9 @@ import gg.warcraft.chat.app.channel.service.ChannelCommandHandlerFactory;
 import gg.warcraft.chat.app.channel.service.DefaultChannelCommandService;
 import gg.warcraft.chat.app.channel.service.DefaultChannelQueryService;
 import gg.warcraft.chat.app.channel.service.DefaultChannelRepository;
+import gg.warcraft.chat.app.logger.ConsoleMessageLogger;
+import gg.warcraft.chat.app.logger.MessageLogger;
+import gg.warcraft.chat.app.logger.NoopMessageLogger;
 import gg.warcraft.chat.app.message.CustomMessage;
 import gg.warcraft.chat.app.message.FormattedMessage;
 import gg.warcraft.chat.app.message.MuteMessage;
@@ -29,7 +32,35 @@ import gg.warcraft.chat.app.profile.service.DefaultChatProfileRepository;
 import gg.warcraft.monolith.api.MonolithModule;
 import gg.warcraft.monolith.api.command.CommandHandler;
 
+import java.util.logging.Logger;
+
 public abstract class AbstractChatModule extends MonolithModule {
+    private static Logger logger;
+    private static String messageLoggerType;
+
+    public static void setLogger(Logger logger) {
+        AbstractChatModule.logger = logger;
+    }
+
+    public static void setMessageLoggerType(String messageLoggerType) {
+        AbstractChatModule.messageLoggerType = messageLoggerType;
+    }
+
+    void configureMessageLogger() {
+        switch (messageLoggerType) {
+            case "CONSOLE":
+                bind(MessageLogger.class).to(ConsoleMessageLogger.class);
+                break;
+            case "NOOP":
+                bind(MessageLogger.class).to(NoopMessageLogger.class);
+                break;
+            default:
+                logger.warning("Illegal messageLogger in Chat configuration: " + messageLoggerType);
+                logger.warning("Falling back to NOOP, no chat messages will be logged.");
+                bind(MessageLogger.class).to(NoopMessageLogger.class);
+                break;
+        }
+    }
 
     @Override
     protected void configure() {
@@ -56,5 +87,7 @@ public abstract class AbstractChatModule extends MonolithModule {
                 .implement(CommandHandler.class, Names.named("local"), LocalChannelCommandHandler.class)
                 .implement(CommandHandler.class, Names.named("global"), GlobalChannelCommandHandler.class)
                 .build(ChannelCommandHandlerFactory.class));
+
+        configureMessageLogger();
     }
 }
