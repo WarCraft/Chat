@@ -10,33 +10,60 @@ import gg.warcraft.monolith.api.config.service.ConfigurationCommandService;
 import gg.warcraft.monolith.api.config.service.ConfigurationQueryService;
 import gg.warcraft.monolith.api.core.EventService;
 import gg.warcraft.monolith.api.persistence.YamlMapper;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class ChatPlugin extends JavaPlugin {
 
-    ChatConfiguration loadChatConfiguration(FileConfiguration localConfig, Injector injector) {
+    ChatConfiguration loadLocalChatConfiguration(FileConfiguration localConfig, Injector injector) {
+        YamlMapper yamlMapper = injector.getInstance(YamlMapper.class);
+        return yamlMapper.parse(localConfig.saveToString(), ChatConfiguration.class);
+    }
+
+    ChatConfiguration loadRemoteChatConfiguration(FileConfiguration localConfiguration, Injector injector) {
+        String configurationFileName = localConfiguration.getString("configurationFileName");
         ConfigurationQueryService configQueryService = injector.getInstance(ConfigurationQueryService.class);
-        ConfigurationCommandService configCommandService = injector.getInstance(ConfigurationCommandService.class);
         ChatConfiguration chatConfiguration = configQueryService.getConfiguration(ChatConfiguration.class);
         if (chatConfiguration == null) {
+            Logger logger = Bukkit.getLogger();
+            logger.info("Remote Chat configuration missing from cache, attempting to load...");
             try {
-                String configFileName = localConfig.getString("configurationFileName");
-                configCommandService.reloadConfiguration(configFileName, ChatConfiguration.class);
+                ConfigurationCommandService configCommandService = injector.getInstance(ConfigurationCommandService.class);
+                configCommandService.reloadConfiguration(configurationFileName, ChatConfiguration.class);
                 chatConfiguration = configQueryService.getConfiguration(ChatConfiguration.class);
+                logger.info("Successfully loaded remote Chat configuration.");
             } catch (IOException ex) {
-                System.out.println("Failed to load Chat configuration: " + ex.getMessage());
-            }
-
-            if (chatConfiguration == null) {
-                System.out.println("Using local Chat configuration.");
-                YamlMapper yamlMapper = injector.getInstance(YamlMapper.class);
-                chatConfiguration = yamlMapper.parse(localConfig.saveToString(), ChatConfiguration.class);
+                logger.warning("Exception loading remote Chat configuration: " + ex.getMessage());
+                return null;
             }
         }
         return chatConfiguration;
+    }
+
+    ChatConfiguration loadChatConfiguration(FileConfiguration localConfiguration, Injector injector) {
+        String configurationType = localConfiguration.getString("configurationType");
+        switch (configurationType) {
+            case "REMOTE":
+                ChatConfiguration chatConfiguration = loadRemoteChatConfiguration(localConfiguration, injector);
+                if (chatConfiguration != null) {
+                    return chatConfiguration;
+                } else {
+                    Logger logger = Bukkit.getLogger();
+                    logger.warning("Failed to load remote Chat configuration.");
+                    logger.warning("Falling back to LOCAL.");
+                }
+            case "LOCAL":
+                return loadLocalChatConfiguration(localConfiguration, injector);
+            default:
+                Logger logger = Bukkit.getLogger();
+                logger.warning("Illegal configurationType in Chat configuration: " + configurationType);
+                logger.warning("Falling back to LOCAL.");
+                return loadLocalChatConfiguration(localConfiguration, injector);
+        }
     }
 
     void readChatConfiguration(ChatConfiguration configuration, Injector injector) {
@@ -50,7 +77,6 @@ public class ChatPlugin extends JavaPlugin {
             channelCommandService.createLocalChannel(channel.getName(), channel.getAliases(), channel.getShortcut(),
                     channel.getColor(), channel.getFormattingString(), channel.getRadius());
         });
-        // TODO: initialize message logger depending on configuration
     }
 
     void initializeEventHandlers(Injector injector) {
@@ -65,6 +91,9 @@ public class ChatPlugin extends JavaPlugin {
     @Override
     public void onLoad() {
         saveDefaultConfig();
+        FileConfiguration localConfig = getConfig();
+        String messageLoggerType = localConfig.getString("messageLogger");
+        SpigotChatModule.setMessageLoggerType(messageLoggerType);
     }
 
     @Override

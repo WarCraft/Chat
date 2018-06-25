@@ -1,6 +1,46 @@
+# CONFIGURATION
+# Options: [LOCAL, REMOTE]
+# ------------------------------------------------------------
+# If LOCAL chat will only consider this config file for its
+# configuration. Even if your Monolith configuration is set to
+# use a non-LOCAL configuration service.
+# If REMOTE chat will consider this config file for its meta
+# configuration (everything above the uppercase separator in
+# the middle of the file) and will attempt to retrieve a remote
+# file for the remainder of its configuration.
+# If Monolith itself is configured to use LOCAL configuration
+# or retrieving the REMOTE file fails chat will fallback to
+# LOCAL and use this file for all of its configuration.
+configurationType: LOCAL
+
+# The following value only matters if you are configuring a
+# REMOTE configuration and will be ignored otherwise. This
+# value should be the file name relative to the root of your
+# remote configuration service store and contain all of the
+# configuration below the uppercase separator in the middle
+# of this file.
 configurationFileName: relative/path/to/config.yml
 
-# CHAT CONFIGURATION
+# LOGGING
+# Options: [CONSOLE, NOOP]
+# ------------------------------------------------------------
+# If CONSOLE all messages in all channels will be printed to
+# the console (in an unformatted form to improve readability).
+# If NOOP (No Operation) no messages will be logged.
+# The option to log to cloud services is on the to-do list,
+# but low priority. If you need an alternative implementation
+# right now please consider opening a pull request.
+messageLogger: CONSOLE
+
+
+# ------------------------------------------------------------
+# ALL CONFIGURATION ABOVE THIS LINE HAS TO BE DONE LOCALLY
+
+# ALL CONFIGURATION BELOW THIS LINE IS ELIGIBLE FOR REMOTE
+# ------------------------------------------------------------
+
+
+# CHANNELS
 # ------------------------------------------------------------
 # Everything below this line is part of the chat configuration.
 # If you are using a non-LOCAL configuration service in your
@@ -17,8 +57,8 @@ configurationFileName: relative/path/to/config.yml
 # If you are using a LOCAL configuration service you can ignore
 # the 'configurationFileName' setting. The plugin will use what
 # is configured in this file instead.
+defaultChannel: Global
 
-# CHANNELS
 globalChannels:
   - name: Global
     aliases: []
@@ -34,16 +74,3 @@ localChannels:
     color: WHITE
     formattingString: {sender.color}[{sender.tag}] {channel.color}{sender.name}: {text}
     radius: 30
-
-defaultChannel: Global
-
-# LOGGING
-# Options: [CONSOLE, NOOP]
-# ------------------------------------------------------------
-# If CONSOLE all messages in all channels will be printed to
-# the console (in an unformatted form to improve readability).
-# If NOOP (No Operation) no messages will be logged.
-# The option to log to cloud services is on the to-do list,
-# but low priority. If you need an alternative implementation
-# right now please consider opening a pull request.
-messageLogger: CONSOLE
