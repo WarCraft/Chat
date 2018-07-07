@@ -1,10 +1,8 @@
-name: "WarCraft: Chat"
+name: "WarCraft_Chat"
 version: 1.0.0
 author: fishb6nes
 authors: [fishb6nes, Chau]
 website: http://warcraft.gg
 
 main: gg.warcraft.chat.spigot.ChatPlugin
-depend: ["WarCraft: Monolith"]
-
-commands: []
+depend: ["WarCraft_Monolith"]
