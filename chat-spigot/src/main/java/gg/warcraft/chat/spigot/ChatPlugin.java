@@ -10,12 +10,15 @@ import gg.warcraft.monolith.api.Monolith;
 import gg.warcraft.monolith.api.config.service.ConfigurationCommandService;
 import gg.warcraft.monolith.api.config.service.ConfigurationQueryService;
 import gg.warcraft.monolith.api.core.EventService;
+import gg.warcraft.monolith.api.entity.service.EntityQueryService;
 import gg.warcraft.monolith.api.persistence.YamlMapper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 public class ChatPlugin extends JavaPlugin {
@@ -69,10 +72,13 @@ public class ChatPlugin extends JavaPlugin {
 
     void readChatConfiguration(ChatConfiguration configuration, Injector injector) {
         ChannelCommandService channelCommandService = injector.getInstance(ChannelCommandService.class);
+        EntityQueryService entityQueryService = injector.getInstance(EntityQueryService.class);
         configuration.getGlobalChannels().forEach(channel -> {
-            // TODO: integrate required permission from configuration
+            Predicate<UUID> permissionCheck = channel.getRequiredPermission().isEmpty()
+                    ? uuid -> true
+                    : uuid -> entityQueryService.getEntity(uuid).hasPermission(channel.getRequiredPermission());
             channelCommandService.createGlobalChannel(channel.getName(), channel.getAliases(), channel.getShortcut(),
-                    channel.getColor(), channel.getFormattingString(), uuid -> true);
+                    channel.getColor(), channel.getFormattingString(), permissionCheck);
         });
         configuration.getLocalChannels().forEach(channel -> {
             channelCommandService.createLocalChannel(channel.getName(), channel.getAliases(), channel.getShortcut(),
