@@ -14,18 +14,18 @@ import java.util.function.Predicate;
  * create a new {@code Channel} and to join or leave one.
  * <p>
  * When creating new channels formatting string options include:
- * {channel.name}   The name of the channel
- * {channel.color}  The color code of the channel
- * {sender.name}    The name of the sender
- * {sender.tag}     The tag of the sender
- * {sender.color}   The color code of the sender's tag
- * {text}           The chat text
+ * <channel.name>   The name of the channel
+ * <channel.color>  The color code of the channel
+ * <sender.name>    The name of the sender
+ * <sender.tag>     The tag of the sender
+ * <sender.color>   The color code of the sender's tag
+ * <text>           The chat text
  * <p>
  * A message will always start with the color of the {@code Channel}. Examples:
- * string: "[{channel.name}] {sender.color}[{sender.tag}]{channel.color} {sender.name}: {text}"
+ * string: "[<channel.name>] <sender.color>[<sender.tag>]<channel.color> <sender.name>: <text>"
  * output: GRAY[Global] RED[Admin]GRAY fishb6nes: testerino messagerino
  * <p>
- * string: "{sender.name} {text}"
+ * string: "<sender.name> <text>"
  * output: GOLDfishb6nes flails his arms
  */
 public interface ChannelCommandService {
