@@ -32,15 +32,8 @@ import gg.warcraft.chat.app.profile.service.DefaultChatProfileQueryService;
 import gg.warcraft.chat.app.profile.service.DefaultChatProfileRepository;
 import gg.warcraft.monolith.api.command.CommandHandler;
 
-import java.util.logging.Logger;
-
 public abstract class AbstractChatModule extends AbstractModule {
-    private static Logger logger;
     private static String messageLoggerType;
-
-    public static void setLogger(Logger logger) {
-        AbstractChatModule.logger = logger;
-    }
 
     public static void setMessageLoggerType(String messageLoggerType) {
         AbstractChatModule.messageLoggerType = messageLoggerType;
@@ -55,10 +48,7 @@ public abstract class AbstractChatModule extends AbstractModule {
                 bind(MessageLogger.class).to(NoopMessageLogger.class);
                 break;
             default:
-                logger.warning("Illegal messageLogger in Chat configuration: " + messageLoggerType);
-                logger.warning("Falling back to NOOP, no chat messages will be logged.");
-                bind(MessageLogger.class).to(NoopMessageLogger.class);
-                break;
+                throw new IllegalArgumentException("Failed to configure message logger of illegal type: " + messageLoggerType);
         }
     }
 

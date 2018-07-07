@@ -94,7 +94,6 @@ public class ChatPlugin extends JavaPlugin {
         saveDefaultConfig();
         FileConfiguration localConfig = getConfig();
         String messageLoggerType = localConfig.getString("messageLogger");
-        AbstractChatModule.setLogger(getLogger());
         AbstractChatModule.setMessageLoggerType(messageLoggerType);
         Monolith.registerModule(new SpigotChatModule());
     }
