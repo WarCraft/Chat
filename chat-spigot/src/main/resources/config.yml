@@ -19,7 +19,7 @@ configurationType: LOCAL
 # remote configuration service store and contain all of the
 # configuration below the uppercase separator in the middle
 # of this file.
-configurationFileName: relative/path/to/config.yml
+configurationFileName: "relative/path/to/config.yml"
 
 # LOGGING
 # Options: [CONSOLE, NOOP]

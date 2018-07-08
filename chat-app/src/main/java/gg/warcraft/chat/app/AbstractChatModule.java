@@ -33,10 +33,10 @@ import gg.warcraft.chat.app.profile.service.DefaultChatProfileRepository;
 import gg.warcraft.monolith.api.command.CommandHandler;
 
 public abstract class AbstractChatModule extends AbstractModule {
-    private static String messageLoggerType;
+    private final String messageLoggerType;
 
-    public static void setMessageLoggerType(String messageLoggerType) {
-        AbstractChatModule.messageLoggerType = messageLoggerType;
+    public AbstractChatModule(String messageLoggerType) {
+        this.messageLoggerType = messageLoggerType;
     }
 
     void configureMessageLogger() {

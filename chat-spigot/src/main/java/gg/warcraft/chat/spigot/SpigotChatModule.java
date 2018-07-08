@@ -5,6 +5,10 @@ import gg.warcraft.chat.app.AbstractChatModule;
 
 public class SpigotChatModule extends AbstractChatModule {
 
+    public SpigotChatModule(String messageLoggerType) {
+        super(messageLoggerType);
+    }
+
     @Override
     public void configure() {
         super.configure();

@@ -1,11 +1,14 @@
 package gg.warcraft.chat.spigot;
 
+import com.google.common.base.Strings;
+import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import gg.warcraft.chat.api.ChatRouter;
 import gg.warcraft.chat.api.channel.service.ChannelCommandService;
 import gg.warcraft.chat.api.config.ChatConfiguration;
-import gg.warcraft.chat.app.AbstractChatModule;
+import gg.warcraft.chat.app.config.SimpleChatConfiguration;
 import gg.warcraft.chat.app.profile.handler.ChatProfileInitializationHandler;
+import gg.warcraft.chat.spigot.event.SpigotChatEventMapper;
 import gg.warcraft.monolith.api.Monolith;
 import gg.warcraft.monolith.api.config.service.ConfigurationCommandService;
 import gg.warcraft.monolith.api.config.service.ConfigurationQueryService;
@@ -25,7 +28,7 @@ public class ChatPlugin extends JavaPlugin {
 
     ChatConfiguration loadLocalChatConfiguration(FileConfiguration localConfig, Injector injector) {
         YamlMapper yamlMapper = injector.getInstance(YamlMapper.class);
-        return yamlMapper.parse(localConfig.saveToString(), ChatConfiguration.class);
+        return yamlMapper.parse(localConfig.saveToString(), SimpleChatConfiguration.class);
     }
 
     ChatConfiguration loadRemoteChatConfiguration(FileConfiguration localConfiguration, Injector injector) {
@@ -74,7 +77,7 @@ public class ChatPlugin extends JavaPlugin {
         ChannelCommandService channelCommandService = injector.getInstance(ChannelCommandService.class);
         EntityQueryService entityQueryService = injector.getInstance(EntityQueryService.class);
         configuration.getGlobalChannels().forEach(channel -> {
-            Predicate<UUID> permissionCheck = channel.getRequiredPermission().isEmpty()
+            Predicate<UUID> permissionCheck = Strings.isNullOrEmpty(channel.getRequiredPermission())
                     ? uuid -> true
                     : uuid -> entityQueryService.getEntity(uuid).hasPermission(channel.getRequiredPermission());
             channelCommandService.createGlobalChannel(channel.getName(), channel.getAliases(), channel.getShortcut(),
@@ -86,7 +89,7 @@ public class ChatPlugin extends JavaPlugin {
         });
     }
 
-    void initializeEventHandlers(Injector injector) {
+    void initializeMonolithEventHandlers(Injector injector) {
         EventService eventService = injector.getInstance(EventService.class);
         ChatRouter chatRouter = injector.getInstance(ChatRouter.class);
         ChatProfileInitializationHandler profileInitializationHandler =
@@ -95,13 +98,19 @@ public class ChatPlugin extends JavaPlugin {
         eventService.subscribe(profileInitializationHandler);
     }
 
+    void initializeSpigotEventHandlers(Injector injector) {
+        SpigotChatEventMapper chatEventMapper = injector.getInstance(SpigotChatEventMapper.class);
+        getServer().getPluginManager().registerEvents(chatEventMapper, this);
+    }
+
     @Override
     public void onLoad() {
         saveDefaultConfig();
         FileConfiguration localConfig = getConfig();
         String messageLoggerType = localConfig.getString("messageLogger");
-        AbstractChatModule.setMessageLoggerType(messageLoggerType);
-        Monolith.registerModule(new SpigotChatModule());
+
+        AbstractModule spigotChatModule = new SpigotChatModule(messageLoggerType);
+        Monolith.registerModule(spigotChatModule);
     }
 
     @Override
@@ -112,6 +121,7 @@ public class ChatPlugin extends JavaPlugin {
         ChatConfiguration chatConfiguration = loadChatConfiguration(localConfig, injector);
         readChatConfiguration(chatConfiguration, injector);
 
-        initializeEventHandlers(injector);
+        initializeMonolithEventHandlers(injector);
+        initializeSpigotEventHandlers(injector);
     }
 }

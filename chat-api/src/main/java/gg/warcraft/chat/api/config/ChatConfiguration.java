@@ -7,6 +7,4 @@ public interface ChatConfiguration {
     List<GlobalChannelConfiguration> getGlobalChannels();
 
     List<LocalChannelConfiguration> getLocalChannels();
-
-    String getMessageLogger();
 }
