@@ -1,9 +1,10 @@
 package gg.warcraft.chat.app.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import gg.warcraft.chat.api.config.LocalChannelConfiguration;
 import gg.warcraft.monolith.api.util.ColorCode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleLocalChannelConfiguration implements LocalChannelConfiguration {
@@ -14,17 +15,13 @@ public class SimpleLocalChannelConfiguration implements LocalChannelConfiguratio
     private final String formattingString;
     private final float radius;
 
-    public SimpleLocalChannelConfiguration() {
-        this.name = "";
-        this.aliases = new ArrayList<>();
-        this.shortcut = "";
-        this.color = ColorCode.WHITE;
-        this.formattingString = "";
-        this.radius = 0;
-    }
-
-    public SimpleLocalChannelConfiguration(String name, List<String> aliases, String shortcut, ColorCode color,
-                                           String formattingString, float radius) {
+    @JsonCreator
+    public SimpleLocalChannelConfiguration(@JsonProperty("name") String name,
+                                           @JsonProperty("aliases") List<String> aliases,
+                                           @JsonProperty("shortcut") String shortcut,
+                                           @JsonProperty("color") ColorCode color,
+                                           @JsonProperty("formattingString") String formattingString,
+                                           @JsonProperty("radius") float radius) {
         this.name = name;
         this.aliases = aliases;
         this.shortcut = shortcut;

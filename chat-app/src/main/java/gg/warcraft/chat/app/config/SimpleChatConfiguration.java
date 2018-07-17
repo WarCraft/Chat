@@ -1,10 +1,11 @@
 package gg.warcraft.chat.app.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import gg.warcraft.chat.api.config.ChatConfiguration;
 import gg.warcraft.chat.api.config.GlobalChannelConfiguration;
 import gg.warcraft.chat.api.config.LocalChannelConfiguration;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,13 +13,9 @@ public class SimpleChatConfiguration implements ChatConfiguration {
     private final List<SimpleGlobalChannelConfiguration> globalChannels;
     private final List<SimpleLocalChannelConfiguration> localChannels;
 
-    public SimpleChatConfiguration() {
-        this.globalChannels = new ArrayList<>();
-        this.localChannels = new ArrayList<>();
-    }
-
-    public SimpleChatConfiguration(List<SimpleGlobalChannelConfiguration> globalChannels,
-                                   List<SimpleLocalChannelConfiguration> localChannels) {
+    @JsonCreator
+    public SimpleChatConfiguration(@JsonProperty("globalChannels") List<SimpleGlobalChannelConfiguration> globalChannels,
+                                   @JsonProperty("localChannels") List<SimpleLocalChannelConfiguration> localChannels) {
         this.globalChannels = globalChannels;
         this.localChannels = localChannels;
     }

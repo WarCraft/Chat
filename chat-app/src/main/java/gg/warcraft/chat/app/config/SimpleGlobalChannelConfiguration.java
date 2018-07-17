@@ -1,9 +1,10 @@
 package gg.warcraft.chat.app.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import gg.warcraft.chat.api.config.GlobalChannelConfiguration;
 import gg.warcraft.monolith.api.util.ColorCode;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleGlobalChannelConfiguration implements GlobalChannelConfiguration {
@@ -14,17 +15,13 @@ public class SimpleGlobalChannelConfiguration implements GlobalChannelConfigurat
     private final String formattingString;
     private final String requiredPermission;
 
-    public SimpleGlobalChannelConfiguration() {
-        this.name = "";
-        this.aliases = new ArrayList<>();
-        this.shortcut = "";
-        this.color = ColorCode.WHITE;
-        this.formattingString = "";
-        this.requiredPermission = "";
-    }
-
-    public SimpleGlobalChannelConfiguration(String name, List<String> aliases, String shortcut, ColorCode color,
-                                            String formattingString, String requiredPermission) {
+    @JsonCreator
+    public SimpleGlobalChannelConfiguration(@JsonProperty("name") String name,
+                                            @JsonProperty("aliases") List<String> aliases,
+                                            @JsonProperty("shortcut") String shortcut,
+                                            @JsonProperty("color") ColorCode color,
+                                            @JsonProperty("formattingString") String formattingString,
+                                            @JsonProperty("requiredPermission") String requiredPermission) {
         this.name = name;
         this.aliases = aliases;
         this.shortcut = shortcut;

@@ -7,7 +7,7 @@ import gg.warcraft.chat.api.profile.ChatTag;
 import gg.warcraft.chat.api.profile.service.ChatProfileRepository;
 import gg.warcraft.chat.app.profile.PlayerChatProfile;
 import gg.warcraft.chat.app.profile.PlayerChatTag;
-import gg.warcraft.monolith.api.persistence.PersistenceService;
+import gg.warcraft.monolith.api.core.PersistenceService;
 import gg.warcraft.monolith.api.util.ColorCode;
 
 import java.util.Arrays;
