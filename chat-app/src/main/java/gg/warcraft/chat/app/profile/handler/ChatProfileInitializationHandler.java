@@ -36,7 +36,7 @@ public class ChatProfileInitializationHandler {
         if (profile == null) {
             Player player = playerQueryService.getPlayer(playerId);
             Channel defaultChannel = channelQueryService.getDefaultChannel();
-            profileCommandService.createChatProfile(playerId, player.getDisplayName(), defaultChannel);
+            profileCommandService.createChatProfile(playerId, player.getName(), defaultChannel);
         } else {
             Channel homeChannel = channelQueryService.getChannelByAlias(profile.getHomeChannel());
             if (homeChannel == null) {
