@@ -41,7 +41,7 @@ public interface ChatProfileCommandService {
 
     /**
      * Updates the channel list on the chat profile of the specified player to not include the specified channel.
-     *
+     * <p>
      * Trying to opt out of a channel you have already left will fail silently.
      *
      * @param playerId The id of the player. Can not be null.
@@ -51,7 +51,7 @@ public interface ChatProfileCommandService {
 
     /**
      * Updates the channel list on the chat profile of the specified player to include the specified channel.
-     *
+     * <p>
      * Trying to opt in to a channel you have already join will fail silently.
      *
      * @param playerId The id of the player. Can not be null.
