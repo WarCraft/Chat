@@ -18,7 +18,7 @@ import gg.warcraft.monolith.api.entity.Entity;
 import gg.warcraft.monolith.api.entity.player.Player;
 import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService;
 import gg.warcraft.monolith.api.entity.service.EntityQueryService;
-import gg.warcraft.monolith.api.world.Location;
+import gg.warcraft.monolith.api.world.location.Location;
 
 import java.util.Collection;
 import java.util.List;
