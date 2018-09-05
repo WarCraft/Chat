@@ -30,7 +30,7 @@ configurationFileName: "relative/path/to/config.yml"
 # The option to log to cloud services is on the to-do list,
 # but low priority. If you need an alternative implementation
 # right now please consider opening a pull request.
-messageLogger: CONSOLE
+messageLogger: PLUGIN
 
 
 # ------------------------------------------------------------

@@ -22,6 +22,7 @@ import gg.warcraft.chat.app.channel.service.DefaultChannelRepository;
 import gg.warcraft.chat.app.logger.ConsoleMessageLogger;
 import gg.warcraft.chat.app.logger.MessageLogger;
 import gg.warcraft.chat.app.logger.NoopMessageLogger;
+import gg.warcraft.chat.app.logger.PluginMessageLogger;
 import gg.warcraft.chat.app.message.CustomMessage;
 import gg.warcraft.chat.app.message.FormattedMessage;
 import gg.warcraft.chat.app.message.MuteMessage;
@@ -46,6 +47,9 @@ public abstract class AbstractChatModule extends AbstractModule {
                 break;
             case "NOOP":
                 bind(MessageLogger.class).to(NoopMessageLogger.class);
+                break;
+            case "PLUGIN":
+                bind(MessageLogger.class).to(PluginMessageLogger.class);
                 break;
             default:
                 throw new IllegalArgumentException("Failed to configure message logger of illegal type: " + messageLoggerType);

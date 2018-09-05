@@ -126,7 +126,9 @@ public class ChatPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         FileConfiguration localConfig = getConfig();
-        Injector injector = Monolith.getInstance().getInjector();
+        Injector baseInjector = Monolith.getInstance().getInjector();
+        AbstractModule privateChatModule = new PrivateSpigotChatModule(this);
+        Injector injector = baseInjector.createChildInjector(privateChatModule);
 
         ChatConfiguration chatConfiguration = loadChatConfiguration(localConfig, injector);
         readChatConfiguration(chatConfiguration, injector);
