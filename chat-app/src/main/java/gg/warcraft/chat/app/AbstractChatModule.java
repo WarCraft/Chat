@@ -1,6 +1,6 @@
 package gg.warcraft.chat.app;
 
-import com.google.inject.AbstractModule;
+import com.google.inject.PrivateModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import gg.warcraft.chat.api.ChatRouter;
@@ -33,7 +33,7 @@ import gg.warcraft.chat.app.profile.service.DefaultChatProfileQueryService;
 import gg.warcraft.chat.app.profile.service.DefaultChatProfileRepository;
 import gg.warcraft.monolith.api.command.CommandHandler;
 
-public abstract class AbstractChatModule extends AbstractModule {
+public abstract class AbstractChatModule extends PrivateModule {
     private final String messageLoggerType;
 
     public AbstractChatModule(String messageLoggerType) {
@@ -58,17 +58,33 @@ public abstract class AbstractChatModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(ChatRouter.class).to(DefaultChatRouter.class);
-
+        // Channel bindings
         bind(ChannelCommandService.class).to(DefaultChannelCommandService.class);
-        bind(ChannelQueryService.class).to(DefaultChannelQueryService.class);
-        bind(ChannelRepository.class).to(DefaultChannelRepository.class);
+        expose(ChannelCommandService.class);
 
+        bind(ChannelQueryService.class).to(DefaultChannelQueryService.class);
+        expose(ChannelQueryService.class);
+
+        bind(ChannelRepository.class).to(DefaultChannelRepository.class);
+        expose(ChannelRepository.class);
+
+        install(new FactoryModuleBuilder()
+                .implement(CommandHandler.class, Names.named("local"), LocalChannelCommandHandler.class)
+                .implement(CommandHandler.class, Names.named("global"), GlobalChannelCommandHandler.class)
+                .build(ChannelCommandHandlerFactory.class));
+
+        // Profile bindings
         bind(ChatProfileCommandService.class).to(DefaultChatProfileCommandService.class);
+        expose(ChatProfileCommandService.class);
+
         bind(ChatProfileQueryService.class).to(DefaultChatProfileQueryService.class);
+        expose(ChatProfileQueryService.class);
+
         bind(ChatProfileRepository.class).to(DefaultChatProfileRepository.class);
+        expose(ChatProfileRepository.class);
 
         bind(MessageCommandService.class).to(DefaultMessageCommandService.class);
+        expose(MessageCommandService.class);
 
         install(new FactoryModuleBuilder()
                 .implement(Message.class, Names.named("formatted"), FormattedMessage.class)
@@ -77,10 +93,11 @@ public abstract class AbstractChatModule extends AbstractModule {
                 .implement(Message.class, Names.named("custom"), CustomMessage.class)
                 .build(MessageFactory.class));
 
-        install(new FactoryModuleBuilder()
-                .implement(CommandHandler.class, Names.named("local"), LocalChannelCommandHandler.class)
-                .implement(CommandHandler.class, Names.named("global"), GlobalChannelCommandHandler.class)
-                .build(ChannelCommandHandlerFactory.class));
+        // Misc chat bindings
+        bind(ChatRouter.class).to(DefaultChatRouter.class);
+        // TODO moving all configuration code out of the plugin class into a configuration class allows for the
+        // TODO removal of this expose
+        expose(ChatRouter.class);
 
         configureMessageLogger();
     }

@@ -3,9 +3,9 @@ package gg.warcraft.chat.spigot;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Strings;
-import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Module;
 import gg.warcraft.chat.api.ChatRouter;
 import gg.warcraft.chat.api.channel.service.ChannelCommandService;
 import gg.warcraft.chat.api.config.ChatConfiguration;
@@ -119,16 +119,14 @@ public class ChatPlugin extends JavaPlugin {
         FileConfiguration localConfig = getConfig();
         String messageLoggerType = localConfig.getString("messageLogger");
 
-        AbstractModule spigotChatModule = new SpigotChatModule(messageLoggerType);
+        Module spigotChatModule = new SpigotChatModule(this, messageLoggerType);
         Monolith.registerModule(spigotChatModule);
     }
 
     @Override
     public void onEnable() {
         FileConfiguration localConfig = getConfig();
-        Injector baseInjector = Monolith.getInstance().getInjector();
-        AbstractModule privateChatModule = new PrivateSpigotChatModule(this);
-        Injector injector = baseInjector.createChildInjector(privateChatModule);
+        Injector injector = Monolith.getInstance().getInjector();
 
         ChatConfiguration chatConfiguration = loadChatConfiguration(localConfig, injector);
         readChatConfiguration(chatConfiguration, injector);
