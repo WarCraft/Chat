@@ -73,7 +73,6 @@ public class LocalChannelCommandHandler implements CommandHandler {
         Player player = playerQueryService.getPlayer(sender.getPlayerId());
         Collection<UUID> recipientIds = getNearbyPlayerIds(player.getLocation());
         recipientIds.forEach(recipient -> messageCommandService.sendMessageToPlayer(message, recipient));
-        messageCommandService.sendMessageToPlayer(message, sender.getPlayerId()); // FIXME this currently masks an issue with getNearbyPlayerIds, remove this when Local channels properly send messages to nearby players
         if (recipientIds.size() == 1) {
             Message muteMessage = messageFactory.createMuteMessage();
             messageCommandService.sendMessageToPlayer(muteMessage, sender.getPlayerId());
