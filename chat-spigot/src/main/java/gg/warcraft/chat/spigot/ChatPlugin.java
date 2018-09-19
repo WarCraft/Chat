@@ -1,10 +1,7 @@
 package gg.warcraft.chat.spigot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.base.Strings;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.Module;
 import gg.warcraft.chat.api.ChatRouter;
 import gg.warcraft.chat.api.channel.service.ChannelCommandService;
@@ -13,75 +10,16 @@ import gg.warcraft.chat.app.config.ChatMapperModule;
 import gg.warcraft.chat.app.profile.handler.ChatProfileInitializationHandler;
 import gg.warcraft.chat.spigot.event.SpigotChatEventMapper;
 import gg.warcraft.monolith.api.Monolith;
-import gg.warcraft.monolith.api.config.service.ConfigurationCommandService;
-import gg.warcraft.monolith.api.config.service.ConfigurationQueryService;
+import gg.warcraft.monolith.api.MonolithPluginUtils;
 import gg.warcraft.monolith.api.core.EventService;
-import gg.warcraft.monolith.api.core.YamlMapper;
 import gg.warcraft.monolith.api.entity.service.EntityQueryService;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
 import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 
 public class ChatPlugin extends JavaPlugin {
-
-    ChatConfiguration loadLocalChatConfiguration(FileConfiguration localConfig, ObjectMapper yamlMapper) {
-        try {
-            return yamlMapper.readValue(localConfig.saveToString(), ChatConfiguration.class);
-        } catch (IOException ex) {
-            throw new IllegalStateException("Failed to load local chat configuration: " + ex.getMessage());
-        }
-    }
-
-    ChatConfiguration loadRemoteChatConfiguration(FileConfiguration localConfiguration, Injector injector) {
-        String configurationFileName = localConfiguration.getString("configurationFileName");
-        ConfigurationQueryService configQueryService = injector.getInstance(ConfigurationQueryService.class);
-        ChatConfiguration chatConfiguration = configQueryService.getConfiguration(ChatConfiguration.class);
-        if (chatConfiguration == null) {
-            Logger logger = Bukkit.getLogger();
-            logger.info("Remote Chat configuration missing from cache, attempting to load...");
-            try {
-                ConfigurationCommandService configCommandService = injector.getInstance(ConfigurationCommandService.class);
-                configCommandService.reloadConfiguration(configurationFileName, ChatConfiguration.class);
-                chatConfiguration = configQueryService.getConfiguration(ChatConfiguration.class);
-                logger.info("Successfully loaded remote Chat configuration.");
-            } catch (IOException ex) {
-                logger.warning("Exception loading remote Chat configuration: " + ex.getMessage());
-                return null;
-            }
-        }
-        return chatConfiguration;
-    }
-
-    ChatConfiguration loadChatConfiguration(FileConfiguration localConfiguration, Injector injector) {
-        ObjectMapper yamlMapper = injector.getInstance(Key.get(ObjectMapper.class, YamlMapper.class));
-        SimpleModule chatMapperModule = new ChatMapperModule();
-        yamlMapper.registerModule(chatMapperModule);
-
-        String configurationType = localConfiguration.getString("configurationType");
-        switch (configurationType) {
-            case "REMOTE":
-                ChatConfiguration chatConfiguration = loadRemoteChatConfiguration(localConfiguration, injector);
-                if (chatConfiguration != null) {
-                    return chatConfiguration;
-                } else {
-                    Logger logger = Bukkit.getLogger();
-                    logger.warning("Failed to load remote Chat configuration.");
-                    logger.warning("Falling back to LOCAL.");
-                }
-            case "LOCAL":
-                return loadLocalChatConfiguration(localConfiguration, yamlMapper);
-            default:
-                Logger logger = Bukkit.getLogger();
-                logger.warning("Illegal configurationType in Chat configuration: " + configurationType);
-                logger.warning("Falling back to LOCAL.");
-                return loadLocalChatConfiguration(localConfiguration, yamlMapper);
-        }
-    }
 
     void readChatConfiguration(ChatConfiguration configuration, Injector injector) {
         ChannelCommandService channelCommandService = injector.getInstance(ChannelCommandService.class);
@@ -128,7 +66,11 @@ public class ChatPlugin extends JavaPlugin {
         FileConfiguration localConfig = getConfig();
         Injector injector = Monolith.getInstance().getInjector();
 
-        ChatConfiguration chatConfiguration = loadChatConfiguration(localConfig, injector);
+        MonolithPluginUtils pluginUtils = injector.getInstance(MonolithPluginUtils.class);
+        String configurationType = localConfig.getString("configurationType");
+        String configurationFileName = localConfig.getString("configurationFileName");
+        ChatConfiguration chatConfiguration = pluginUtils.loadConfiguration(configurationType, configurationFileName,
+                localConfig.saveToString(), ChatConfiguration.class, new ChatMapperModule());
         readChatConfiguration(chatConfiguration, injector);
 
         initializeMonolithEventHandlers(injector);
