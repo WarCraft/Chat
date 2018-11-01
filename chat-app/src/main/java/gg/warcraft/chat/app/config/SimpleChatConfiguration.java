@@ -10,14 +10,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SimpleChatConfiguration implements ChatConfiguration {
+    private final String defaultChannel;
     private final List<SimpleGlobalChannelConfiguration> globalChannels;
     private final List<SimpleLocalChannelConfiguration> localChannels;
 
     @JsonCreator
-    public SimpleChatConfiguration(@JsonProperty("globalChannels") List<SimpleGlobalChannelConfiguration> globalChannels,
+    public SimpleChatConfiguration(@JsonProperty("defaultChannel") String defaultChannel,
+                                   @JsonProperty("globalChannels") List<SimpleGlobalChannelConfiguration> globalChannels,
                                    @JsonProperty("localChannels") List<SimpleLocalChannelConfiguration> localChannels) {
+        this.defaultChannel = defaultChannel;
         this.globalChannels = globalChannels;
         this.localChannels = localChannels;
+    }
+
+    @Override
+    public String getDefaultChannel() {
+        return defaultChannel;
     }
 
     @Override

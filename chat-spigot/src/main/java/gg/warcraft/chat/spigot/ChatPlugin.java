@@ -35,6 +35,7 @@ public class ChatPlugin extends JavaPlugin {
             channelCommandService.createLocalChannel(channel.getName(), channel.getAliases(), channel.getShortcut(),
                     channel.getColor(), channel.getFormattingString(), channel.getRadius());
         });
+        channelCommandService.setDefaultChannel(configuration.getDefaultChannel());
     }
 
     void initializeMonolithEventHandlers(Injector injector) {
