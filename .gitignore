@@ -5,8 +5,12 @@
 # User-specific stuff
 .idea/**/workspace.xml
 .idea/**/tasks.xml
+.idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+
+# Generated files
+.idea/**/contentModel.xml
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
@@ -15,14 +19,20 @@
 .idea/**/sqlDataSources.xml
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
 
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
 
+# Gradle and Maven with auto-import
+.idea/modules.xml
+.idea/*.iml
+.idea/modules
+*.iml
+
 # CMake
-cmake-build-debug/
-cmake-build-release/
+cmake-build-*/
 
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
@@ -32,6 +42,7 @@ cmake-build-release/
 
 # IntelliJ
 out/
+*/out/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -51,12 +62,16 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
+# Android studio 3.1+ serialized cache file
+.idea/caches/build_file_checksums.ser
+
 ==============================
 # Gradle
 
 .gradle
+
 /build/
-**/build/
+*/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -66,11 +81,3 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
-
-# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
-# gradle/wrapper/gradle-wrapper.properties
-
-==============================
-# Mac
-
-/.DS_Store
