@@ -12,7 +12,7 @@ import gg.warcraft.chat.spigot.event.SpigotChatEventMapper;
 import gg.warcraft.monolith.api.Monolith;
 import gg.warcraft.monolith.api.MonolithPluginUtils;
 import gg.warcraft.monolith.api.core.EventService;
-import gg.warcraft.monolith.api.entity.service.EntityQueryService;
+import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,11 +23,11 @@ public class ChatPlugin extends JavaPlugin {
 
     void readChatConfiguration(ChatConfiguration configuration, Injector injector) {
         ChannelCommandService channelCommandService = injector.getInstance(ChannelCommandService.class);
-        EntityQueryService entityQueryService = injector.getInstance(EntityQueryService.class);
+        PlayerQueryService playerQueryService = injector.getInstance(PlayerQueryService.class);
         configuration.getGlobalChannels().forEach(channel -> {
             Predicate<UUID> permissionCheck = Strings.isNullOrEmpty(channel.getRequiredPermission())
                     ? uuid -> true
-                    : uuid -> entityQueryService.getEntity(uuid).hasPermission(channel.getRequiredPermission());
+                    : uuid -> playerQueryService.getPlayer(uuid).hasPermission(channel.getRequiredPermission());
             channelCommandService.createGlobalChannel(channel.getName(), channel.getAliases(), channel.getShortcut(),
                     channel.getColor(), channel.getFormattingString(), permissionCheck);
         });
