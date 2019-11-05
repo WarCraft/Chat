@@ -68,6 +68,7 @@ public class DefaultChatRouter implements ChatRouter {
             text = event.getText().substring(channel.getShortcut().length()).trim();
         }
         String command = String.format("%s %s", channel.getName(), text);
-        commandCommandService.dispatchCommandFor(command, event.getPlayerId());
+        taskService.runNextTick(() -> commandCommandService
+                .dispatchCommandFor(command, event.getPlayerId()));
     }
 }
