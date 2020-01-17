@@ -18,11 +18,10 @@ public class SpigotChannelCommandHandler implements Listener {
 
     @EventHandler
     public void onPreCommand(PlayerCommandPreprocessEvent event) {
-        String[] cmd = event.getMessage().split(" ");
+        String[] cmd = event.getMessage().substring(1).split(" ");
         if (cmd.length == 0) return;
         CommandHandler handler = commandHandler.getHandler(cmd[0]);
-        if (handler == null) return;
-        else {
+        if (handler != null) {
             handler.handle(
                     new PlayerCommandSender(
                             event.getPlayer().getName(),

@@ -6,3 +6,7 @@ website: http://warcraft.gg
 
 main: gg.warcraft.chat.spigot.ChatPlugin
 depend: ["WarCraft_Monolith"]
+
+commands:
+  global: {}
+  local: {}

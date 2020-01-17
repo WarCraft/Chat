@@ -8,12 +8,20 @@ import gg.warcraft.chat.api.channel.Channel;
 import gg.warcraft.chat.api.channel.service.ChannelQueryService;
 import gg.warcraft.chat.api.profile.ChatProfile;
 import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
+import gg.warcraft.chat.app.channel.handler.ChannelCommandHandler;
 import gg.warcraft.chat.app.event.NativeAsyncPlayerChatEvent;
 import gg.warcraft.monolith.api.core.TaskService;
+import gg.warcraft.monolith.api.core.command.Command;
+import gg.warcraft.monolith.api.core.command.CommandHandler;
 import gg.warcraft.monolith.api.core.command.CommandService;
+import gg.warcraft.monolith.api.core.command.PlayerCommandSender;
 import gg.warcraft.monolith.api.core.event.Event;
 import gg.warcraft.monolith.api.core.event.EventService;
+import gg.warcraft.monolith.api.entity.player.Player;
+import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService;
+import scala.Option$;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -25,20 +33,23 @@ public class DefaultChatRouter implements ChatRouter {
     private final ChannelQueryService channelQueryService;
     private final ChatProfileQueryService profileQueryService;
     private final CommandService commandService;
+    private final PlayerQueryService playerQueryService;
     private final TaskService taskService;
+
+    private final ChannelCommandHandler commandHandler = new ChannelCommandHandler();
 
     final Map<UUID, PriorityChatListener> priorityListeners;
 
     @Inject
     public DefaultChatRouter(ChannelQueryService channelQueryService, ChatProfileQueryService profileQueryService,
-                             CommandService commandService, EventService eventService,
+                             CommandService commandService, EventService eventService, PlayerQueryService playerQueryService,
                              TaskService taskService) {
         this.channelQueryService = channelQueryService;
         this.profileQueryService = profileQueryService;
         this.commandService = commandService;
+        this.playerQueryService = playerQueryService;
         this.taskService = taskService;
         this.priorityListeners = new HashMap<>();
-        eventService.subscribe(this);
     }
 
     @Override
@@ -73,8 +84,21 @@ public class DefaultChatRouter implements ChatRouter {
         } else {
             text = event.getText().substring(channel.getShortcut().length()).trim();
         }
-        String command = String.format("%s %s", channel.getName(), text);
-        taskService.runNextTick(() -> commandService
-                .dispatchCommand(event.getPlayerId(), command, null)); // TODO fix
+
+        String command = channel.getName().toLowerCase();
+        CommandHandler handler = commandHandler.getHandler(command);
+        if (handler != null) {
+            Player player = playerQueryService.getPlayer(event.getPlayerId());
+            handler.handle(
+                    new PlayerCommandSender(
+                            player.getName(),
+                            Option$.MODULE$.apply(event.getPlayerId())
+                    ),
+                    new Command(command, command,
+                            scala.collection.JavaConverters.collectionAsScalaIterableConverter(
+                                    Arrays.asList(text.split(" "))
+                            ).asScala().toSeq())
+            );
+        }
     }
 }

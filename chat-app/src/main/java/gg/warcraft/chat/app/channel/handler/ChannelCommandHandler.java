@@ -10,11 +10,11 @@ public class ChannelCommandHandler{
     private static final Map<String, CommandHandler> handlers = new HashMap<>();
 
     public CommandHandler getHandler(String command) {
-        return handlers.get(command);
+        return handlers.get(command.toLowerCase());
     }
 
     public void register(String command, List<String> aliases, CommandHandler handler) {
-        handlers.put(command, handler);
-        aliases.forEach(alias -> handlers.put(alias, handler));
+        handlers.put(command.toLowerCase(), handler);
+        aliases.forEach(alias -> handlers.put(alias.toLowerCase(), handler));
     }
 }
