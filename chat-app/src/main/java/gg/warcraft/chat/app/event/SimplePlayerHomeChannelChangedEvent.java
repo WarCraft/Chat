@@ -19,7 +19,6 @@ public class SimplePlayerHomeChannelChangedEvent implements PlayerHomeChannelCha
         return channel;
     }
 
-    @Override
     public UUID getPlayerId() {
         return playerId;
     }

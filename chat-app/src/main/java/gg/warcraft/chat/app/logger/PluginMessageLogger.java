@@ -21,7 +21,7 @@ public class PluginMessageLogger implements MessageLogger {
 
     @Override
     public void log(Message message) {
-        String sender = message.getSender().getName();
+        String sender = message.getSender().name();
         String log = String.format("[%s] %s: %s", message.getChannel().getName(), sender, message.getOriginal());
         pluginLogger.info(log);
     }

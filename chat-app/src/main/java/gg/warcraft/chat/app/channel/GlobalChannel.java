@@ -1,21 +1,18 @@
 package gg.warcraft.chat.app.channel;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.eventbus.Subscribe;
 import gg.warcraft.chat.api.channel.Channel;
-import gg.warcraft.monolith.api.entity.player.event.PlayerConnectEvent;
-import gg.warcraft.monolith.api.entity.player.event.PlayerDisconnectEvent;
-import gg.warcraft.monolith.api.entity.player.event.PlayerPermissionsChangedEvent;
+import gg.warcraft.monolith.api.core.event.Event;
+import gg.warcraft.monolith.api.core.event.EventHandler;
+import gg.warcraft.monolith.api.player.PlayerConnectEvent;
+import gg.warcraft.monolith.api.player.PlayerDisconnectEvent;
+import gg.warcraft.monolith.api.player.PlayerPermissionsChangedEvent;
 import gg.warcraft.monolith.api.util.ColorCode;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
-public class GlobalChannel implements Channel {
+public class GlobalChannel implements Channel, EventHandler {
     private final String name;
     private final List<String> aliases;
     private final String shortcut;
@@ -69,26 +66,34 @@ public class GlobalChannel implements Channel {
         return joinCondition;
     }
 
-    // TODO move these out of channel object?
-    @Subscribe
-    public void onPlayerConnect(PlayerConnectEvent event) {
-        if (joinCondition.test(event.getPlayerId())) {
-            recipients.add(event.getPlayerId());
+    // TODO move event handling out of channel object?
+    @Override
+    public void handle(Event event) {
+        if (event instanceof PlayerConnectEvent) {
+            onPlayerConnect((PlayerConnectEvent) event);
+        } else if (event instanceof PlayerDisconnectEvent) {
+            onPlayerDisconnect((PlayerDisconnectEvent) event);
+        } else if (event instanceof PlayerPermissionsChangedEvent) {
+            onPlayerPermissionsChanged((PlayerPermissionsChangedEvent) event);
         }
     }
 
-    @Subscribe
+    public void onPlayerConnect(PlayerConnectEvent event) {
+        if (joinCondition.test(event.playerId())) {
+            recipients.add(event.playerId());
+        }
+    }
+
     public void onPlayerPermissionsChanged(PlayerPermissionsChangedEvent event) {
-        if (recipients.remove(event.getPlayerId())) {
-            if (joinCondition.test(event.getPlayerId())) {
-                recipients.add(event.getPlayerId());
+        if (recipients.remove(event.playerId())) {
+            if (joinCondition.test(event.playerId())) {
+                recipients.add(event.playerId());
             }
         }
     }
 
-    @Subscribe
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
-        recipients.remove(event.getPlayerId());
+        recipients.remove(event.playerId());
     }
 
     @Override

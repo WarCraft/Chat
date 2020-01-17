@@ -1,6 +1,5 @@
 package gg.warcraft.chat.app;
 
-import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import gg.warcraft.chat.api.ChatRouter;
@@ -10,9 +9,10 @@ import gg.warcraft.chat.api.channel.service.ChannelQueryService;
 import gg.warcraft.chat.api.profile.ChatProfile;
 import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
 import gg.warcraft.chat.app.event.NativeAsyncPlayerChatEvent;
-import gg.warcraft.monolith.api.command.service.CommandCommandService;
-import gg.warcraft.monolith.api.core.EventService;
 import gg.warcraft.monolith.api.core.TaskService;
+import gg.warcraft.monolith.api.core.command.CommandService;
+import gg.warcraft.monolith.api.core.event.Event;
+import gg.warcraft.monolith.api.core.event.EventService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,18 +24,18 @@ public class DefaultChatRouter implements ChatRouter {
 
     private final ChannelQueryService channelQueryService;
     private final ChatProfileQueryService profileQueryService;
-    private final CommandCommandService commandCommandService;
+    private final CommandService commandService;
     private final TaskService taskService;
 
     final Map<UUID, PriorityChatListener> priorityListeners;
 
     @Inject
     public DefaultChatRouter(ChannelQueryService channelQueryService, ChatProfileQueryService profileQueryService,
-                             CommandCommandService commandCommandService, EventService eventService,
+                             CommandService commandService, EventService eventService,
                              TaskService taskService) {
         this.channelQueryService = channelQueryService;
         this.profileQueryService = profileQueryService;
-        this.commandCommandService = commandCommandService;
+        this.commandService = commandService;
         this.taskService = taskService;
         this.priorityListeners = new HashMap<>();
         eventService.subscribe(this);
@@ -46,7 +46,13 @@ public class DefaultChatRouter implements ChatRouter {
         priorityListeners.put(playerId, listener);
     }
 
-    @Subscribe
+    @Override
+    public void handle(Event event) {
+        if (event instanceof NativeAsyncPlayerChatEvent) {
+            onNativeAsyncPlayerChatEvent((NativeAsyncPlayerChatEvent) event);
+        }
+    }
+
     public void onNativeAsyncPlayerChatEvent(NativeAsyncPlayerChatEvent event) {
         PriorityChatListener priorityListener = priorityListeners.remove(event.getPlayerId());
         if (priorityListener != null) {
@@ -68,7 +74,7 @@ public class DefaultChatRouter implements ChatRouter {
             text = event.getText().substring(channel.getShortcut().length()).trim();
         }
         String command = String.format("%s %s", channel.getName(), text);
-        taskService.runNextTick(() -> commandCommandService
-                .dispatchCommandFor(command, event.getPlayerId()));
+        taskService.runNextTick(() -> commandService
+                .dispatchCommand(event.getPlayerId(), command, null)); // TODO fix
     }
 }

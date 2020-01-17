@@ -1,7 +1,7 @@
 package gg.warcraft.chat.api.message;
 
 import gg.warcraft.chat.api.channel.Channel;
-import gg.warcraft.monolith.api.command.CommandSender;
+import gg.warcraft.monolith.api.core.command.CommandSender;
 
 /**
  * A message represents activity in a channel.

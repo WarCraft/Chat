@@ -26,7 +26,7 @@ subprojects {
     }
 
     dependencies {
-        shadow 'gg.warcraft:monolith-api_2.13:14.0.0-SNAPSHOT'
+        shadow 'gg.warcraft:monolith-api_2.13:15.0.0-SNAPSHOT'
 
         testImplementation 'junit:junit:4.12'
         testImplementation 'org.mockito:mockito-core:2.18.3'

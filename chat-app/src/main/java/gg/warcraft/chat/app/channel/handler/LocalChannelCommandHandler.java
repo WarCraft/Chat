@@ -11,9 +11,9 @@ import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
 import gg.warcraft.chat.app.MessageFormatter;
 import gg.warcraft.chat.app.channel.LocalChannel;
 import gg.warcraft.chat.app.logger.MessageLogger;
-import gg.warcraft.monolith.api.command.Command;
-import gg.warcraft.monolith.api.command.CommandHandler;
-import gg.warcraft.monolith.api.command.CommandSender;
+import gg.warcraft.monolith.api.core.command.Command;
+import gg.warcraft.monolith.api.core.command.CommandHandler;
+import gg.warcraft.monolith.api.core.command.CommandSender;
 import gg.warcraft.monolith.api.entity.Entity;
 import gg.warcraft.monolith.api.entity.player.Player;
 import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService;
@@ -66,16 +66,16 @@ public class LocalChannelCommandHandler implements CommandHandler {
 
     boolean onPlayerChatCommand(CommandSender sender, String text) {
         ChatProfile senderProfile = sender.isPlayer()
-                ? profileQueryService.getChatProfile(sender.getPlayerId())
+                ? profileQueryService.getChatProfile(sender.playerId().get())
                 : profileQueryService.getConsoleChatProfile();
         String formattedText = formatter.format(channel, senderProfile, text);
         Message message = messageFactory.createMessage(channel, sender, text, formattedText);
-        Player player = playerQueryService.getPlayer(sender.getPlayerId());
+        Player player = playerQueryService.getPlayer(sender.playerId().get());
         Collection<UUID> recipientIds = getNearbyPlayerIds(player.getLocation());
         recipientIds.forEach(recipient -> messageCommandService.sendMessageToPlayer(message, recipient));
         if (recipientIds.size() == 1) {
             Message muteMessage = messageFactory.createMuteMessage();
-            messageCommandService.sendMessageToPlayer(muteMessage, sender.getPlayerId());
+            messageCommandService.sendMessageToPlayer(muteMessage, sender.playerId().get());
         }
 
         logger.log(message);
@@ -83,19 +83,19 @@ public class LocalChannelCommandHandler implements CommandHandler {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, List<String> arguments) {
+    public boolean handle(CommandSender sender, Command command) {
         if (!sender.isPlayer()) {
             Message playersOnlyMessage = messageFactory.createServerMessage(PLAYERS_ONLY);
             messageCommandService.sendMessageToConsole(playersOnlyMessage);
             return true;
         }
 
-        if (arguments.isEmpty()) {
-            profileCommandService.setHomeChannel(sender.getPlayerId(), channel);
+        if (command.args().isEmpty()) {
+            profileCommandService.setHomeChannel(sender.playerId().get(), channel);
             return true;
         }
 
-        String text = String.join(" ", arguments);
+        String text = command.args().mkString(" ");
         return onPlayerChatCommand(sender, text);
     }
 }

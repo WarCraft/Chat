@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import gg.warcraft.chat.api.channel.Channel;
 import gg.warcraft.chat.api.message.Message;
-import gg.warcraft.monolith.api.command.CommandSender;
-import gg.warcraft.monolith.api.command.Console;
+import gg.warcraft.monolith.api.core.command.CommandSender;
+import gg.warcraft.monolith.api.core.command.ConsoleCommandSender$;
 import gg.warcraft.monolith.api.util.ColorCode;
 
 public class ServerMessage implements Message {
@@ -14,8 +14,8 @@ public class ServerMessage implements Message {
     private final String formattedText;
 
     @Inject
-    public ServerMessage(@Console CommandSender console, @Assisted String text) {
-        this.sender = console;
+    public ServerMessage(@Assisted String text) {
+        this.sender = ConsoleCommandSender$.MODULE$;
         this.originalText = text;
         this.formattedText = String.format("%s[SERVER] %s", ColorCode.YELLOW, text);
     }

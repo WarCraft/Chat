@@ -1,10 +1,10 @@
 package gg.warcraft.chat.app.event;
 
-import gg.warcraft.monolith.api.entity.player.event.PlayerEvent;
+import gg.warcraft.chat.api.event.AsyncPlayerChatEvent;
 
 import java.util.UUID;
 
-public class NativeAsyncPlayerChatEvent implements PlayerEvent {
+public class NativeAsyncPlayerChatEvent implements AsyncPlayerChatEvent {
     private final UUID playerId;
     private final String text;
 
@@ -17,7 +17,6 @@ public class NativeAsyncPlayerChatEvent implements PlayerEvent {
         return text;
     }
 
-    @Override
     public UUID getPlayerId() {
         return playerId;
     }

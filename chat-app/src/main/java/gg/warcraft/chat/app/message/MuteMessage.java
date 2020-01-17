@@ -3,8 +3,8 @@ package gg.warcraft.chat.app.message;
 import com.google.inject.Inject;
 import gg.warcraft.chat.api.channel.Channel;
 import gg.warcraft.chat.api.message.Message;
-import gg.warcraft.monolith.api.command.CommandSender;
-import gg.warcraft.monolith.api.command.Console;
+import gg.warcraft.monolith.api.core.command.CommandSender;
+import gg.warcraft.monolith.api.core.command.ConsoleCommandSender$;
 import gg.warcraft.monolith.api.util.ColorCode;
 
 public class MuteMessage implements Message {
@@ -14,8 +14,8 @@ public class MuteMessage implements Message {
     private final String formattedText;
 
     @Inject
-    public MuteMessage(@Console CommandSender console) {
-        this.sender = console;
+    public MuteMessage() {
+        this.sender = ConsoleCommandSender$.MODULE$;
         this.formattedText = String.format("%s%s", ColorCode.GRAY, TEXT);
     }
 

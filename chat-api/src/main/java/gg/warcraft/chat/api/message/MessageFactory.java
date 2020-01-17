@@ -3,7 +3,7 @@ package gg.warcraft.chat.api.message;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import gg.warcraft.chat.api.channel.Channel;
-import gg.warcraft.monolith.api.command.CommandSender;
+import gg.warcraft.monolith.api.core.command.CommandSender;
 
 /**
  * This factory is injectable.

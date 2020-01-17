@@ -7,13 +7,15 @@ import gg.warcraft.chat.api.channel.service.ChannelQueryService;
 import gg.warcraft.chat.api.profile.ChatProfile;
 import gg.warcraft.chat.api.profile.service.ChatProfileCommandService;
 import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
+import gg.warcraft.monolith.api.core.event.Event;
+import gg.warcraft.monolith.api.core.event.EventHandler;
 import gg.warcraft.monolith.api.entity.player.Player;
-import gg.warcraft.monolith.api.entity.player.event.PlayerConnectEvent;
+import gg.warcraft.monolith.api.player.PlayerConnectEvent;
 import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService;
 
 import java.util.UUID;
 
-public class ChatProfileInitializationHandler {
+public class ChatProfileInitializationHandler implements EventHandler {
     private final ChatProfileCommandService profileCommandService;
     private final ChatProfileQueryService profileQueryService;
     private final ChannelQueryService channelQueryService;
@@ -29,9 +31,15 @@ public class ChatProfileInitializationHandler {
         this.playerQueryService = playerQueryService;
     }
 
-    @Subscribe
+    @Override
+    public void handle(Event event) {
+        if (event instanceof PlayerConnectEvent) {
+            onPlayerConnect((PlayerConnectEvent) event);
+        }
+    }
+
     public void onPlayerConnect(PlayerConnectEvent event) {
-        UUID playerId = event.getPlayerId();
+        UUID playerId = event.playerId();
         ChatProfile profile = profileQueryService.getChatProfile(playerId);
         if (profile == null) {
             Player player = playerQueryService.getPlayer(playerId);

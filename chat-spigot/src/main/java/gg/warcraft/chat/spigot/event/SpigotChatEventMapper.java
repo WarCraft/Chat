@@ -2,7 +2,7 @@ package gg.warcraft.chat.spigot.event;
 
 import com.google.inject.Inject;
 import gg.warcraft.chat.app.event.NativeAsyncPlayerChatEvent;
-import gg.warcraft.monolith.api.core.EventService;
+import gg.warcraft.monolith.api.core.event.EventService;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;

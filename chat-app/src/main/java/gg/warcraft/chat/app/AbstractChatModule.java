@@ -31,7 +31,7 @@ import gg.warcraft.chat.app.message.service.DefaultMessageCommandService;
 import gg.warcraft.chat.app.profile.service.DefaultChatProfileCommandService;
 import gg.warcraft.chat.app.profile.service.DefaultChatProfileQueryService;
 import gg.warcraft.chat.app.profile.service.DefaultChatProfileRepository;
-import gg.warcraft.monolith.api.command.CommandHandler;
+import gg.warcraft.monolith.api.core.command.CommandHandler;
 
 public abstract class AbstractChatModule extends PrivateModule {
     private final String messageLoggerType;

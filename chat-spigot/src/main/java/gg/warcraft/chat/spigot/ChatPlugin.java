@@ -11,7 +11,7 @@ import gg.warcraft.chat.app.profile.handler.ChatProfileInitializationHandler;
 import gg.warcraft.chat.spigot.event.SpigotChatEventMapper;
 import gg.warcraft.monolith.api.Monolith;
 import gg.warcraft.monolith.api.MonolithPluginUtils;
-import gg.warcraft.monolith.api.core.EventService;
+import gg.warcraft.monolith.api.core.event.EventService;
 import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,6 +50,8 @@ public class ChatPlugin extends JavaPlugin {
     void initializeSpigotEventHandlers(Injector injector) {
         SpigotChatEventMapper chatEventMapper = injector.getInstance(SpigotChatEventMapper.class);
         getServer().getPluginManager().registerEvents(chatEventMapper, this);
+
+        getServer().getPluginManager().registerEvents(new SpigotChannelCommandHandler(), this);
     }
 
     @Override

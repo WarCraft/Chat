@@ -11,9 +11,9 @@ import gg.warcraft.chat.api.profile.service.ChatProfileQueryService;
 import gg.warcraft.chat.app.MessageFormatter;
 import gg.warcraft.chat.app.channel.GlobalChannel;
 import gg.warcraft.chat.app.logger.MessageLogger;
-import gg.warcraft.monolith.api.command.Command;
-import gg.warcraft.monolith.api.command.CommandHandler;
-import gg.warcraft.monolith.api.command.CommandSender;
+import gg.warcraft.monolith.api.core.command.Command;
+import gg.warcraft.monolith.api.core.command.CommandHandler;
+import gg.warcraft.monolith.api.core.command.CommandSender;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class GlobalChannelCommandHandler implements CommandHandler {
 
     boolean onChatCommand(CommandSender sender, String text) {
         ChatProfile senderProfile = sender.isPlayer()
-                ? profileQueryService.getChatProfile(sender.getPlayerId())
+                ? profileQueryService.getChatProfile(sender.playerId().get())
                 : profileQueryService.getConsoleChatProfile();
         String formattedText = formatter.format(channel, senderProfile, text);
         Message message = messageFactory.createMessage(channel, sender, text, formattedText);
@@ -57,7 +57,7 @@ public class GlobalChannelCommandHandler implements CommandHandler {
         if (channel.getRecipients().size() == 1) {
             Message muteMessage = messageFactory.createMuteMessage();
             if (sender.isPlayer()) {
-                messageCommandService.sendMessageToPlayer(muteMessage, sender.getPlayerId());
+                messageCommandService.sendMessageToPlayer(muteMessage, sender.playerId().get());
             } else {
                 messageCommandService.sendMessageToConsole(muteMessage);
             }
@@ -68,43 +68,43 @@ public class GlobalChannelCommandHandler implements CommandHandler {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, List<String> arguments) {
+    public boolean handle(CommandSender sender, Command command) {
         if (sender.isPlayer()) {
-            if (channel.getRecipients().contains(sender.getPlayerId())) {
-                if (arguments.isEmpty()) {
-                    profileCommandService.setHomeChannel(sender.getPlayerId(), channel);
+            if (channel.getRecipients().contains(sender.playerId().get())) {
+                if (command.args().isEmpty()) {
+                    profileCommandService.setHomeChannel(sender.playerId().get(), channel);
                     return true;
                 }
             } else {
-                if (arguments.isEmpty()) {
-                    if (channel.getJoinCondition().test(sender.getPlayerId())) {
+                if (command.args().isEmpty()) {
+                    if (channel.getJoinCondition().test(sender.playerId().get())) {
                         // TODO add player to channel recipients
                         String joined = String.format(JOINED, channel.getName());
                         Message joinedMessage = messageFactory.createServerMessage(joined);
-                        messageCommandService.sendMessageToPlayer(joinedMessage, sender.getPlayerId());
+                        messageCommandService.sendMessageToPlayer(joinedMessage, sender.playerId().get());
                         return true;
                     } else {
                         String missingPermissions = String.format(MISSING_PERMISSIONS, channel.getName());
                         Message missingPermissionsMessage = messageFactory.createServerMessage(missingPermissions);
-                        messageCommandService.sendMessageToPlayer(missingPermissionsMessage, sender.getPlayerId());
+                        messageCommandService.sendMessageToPlayer(missingPermissionsMessage, sender.playerId().get());
                         return true;
                     }
                 } else {
                     String notJoined = String.format(NOT_JOINED, channel.getName());
                     Message notJoinedMessage = messageFactory.createServerMessage(notJoined);
-                    messageCommandService.sendMessageToPlayer(notJoinedMessage, sender.getPlayerId());
+                    messageCommandService.sendMessageToPlayer(notJoinedMessage, sender.playerId().get());
                     return true;
                 }
             }
         } else {
-            if (arguments.isEmpty()) {
+            if (command.args().isEmpty()) {
                 Message homeChannelPlayersOnly = messageFactory.createServerMessage(HOME_CHANNEL_PLAYERS_ONLY);
                 messageCommandService.sendMessageToConsole(homeChannelPlayersOnly);
                 return true;
             }
         }
 
-        String text = String.join(" ", arguments);
+        String text = command.args().mkString(" ");
         return onChatCommand(sender, text);
     }
 }

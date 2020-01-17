@@ -6,9 +6,10 @@ import gg.warcraft.chat.api.channel.service.ChannelCommandService;
 import gg.warcraft.chat.api.channel.service.ChannelRepository;
 import gg.warcraft.chat.app.channel.GlobalChannel;
 import gg.warcraft.chat.app.channel.LocalChannel;
-import gg.warcraft.monolith.api.command.CommandHandler;
-import gg.warcraft.monolith.api.command.service.CommandCommandService;
-import gg.warcraft.monolith.api.core.EventService;
+import gg.warcraft.chat.app.channel.handler.ChannelCommandHandler;
+import gg.warcraft.monolith.api.core.command.CommandHandler;
+import gg.warcraft.monolith.api.core.command.CommandService;
+import gg.warcraft.monolith.api.core.event.EventService;
 import gg.warcraft.monolith.api.util.ColorCode;
 
 import java.util.List;
@@ -26,16 +27,19 @@ public class DefaultChannelCommandService implements ChannelCommandService {
 
     private final ChannelRepository repository;
     private final ChannelCommandHandlerFactory commandHandlerFactory;
-    private final CommandCommandService commandCommandService;
+    private final CommandService commandService;
     private final EventService eventService;
+
+    private final ChannelCommandHandler channelCommandHandler =
+            new ChannelCommandHandler(); // TODO rework
 
     @Inject
     public DefaultChannelCommandService(ChannelRepository repository,
                                         ChannelCommandHandlerFactory commandHandlerFactory,
-                                        CommandCommandService commandCommandService, EventService eventService) {
+                                        CommandService commandService, EventService eventService) {
         this.repository = repository;
         this.commandHandlerFactory = commandHandlerFactory;
-        this.commandCommandService = commandCommandService;
+        this.commandService = commandService;
         this.eventService = eventService;
     }
 
@@ -80,7 +84,7 @@ public class DefaultChannelCommandService implements ChannelCommandService {
             }
         }
 
-        commandCommandService.createCommand(name, aliases, commandHandler);
+        channelCommandHandler.register(name, aliases, commandHandler);
         repository.save(channel);
     }
 

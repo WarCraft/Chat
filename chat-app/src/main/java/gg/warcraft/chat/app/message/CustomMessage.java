@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import gg.warcraft.chat.api.channel.Channel;
 import gg.warcraft.chat.api.message.Message;
-import gg.warcraft.monolith.api.command.CommandSender;
-import gg.warcraft.monolith.api.command.Console;
+import gg.warcraft.monolith.api.core.command.CommandSender;
+import gg.warcraft.monolith.api.core.command.ConsoleCommandSender$;
 
 public class CustomMessage implements Message {
     private final CommandSender sender;
@@ -13,9 +13,9 @@ public class CustomMessage implements Message {
     private final String formattedText;
 
     @Inject
-    public CustomMessage(@Console CommandSender console, @Assisted("original") String originalText,
+    public CustomMessage(@Assisted("original") String originalText,
                          @Assisted("formatted") String formattedText) {
-        this.sender = console;
+        this.sender = ConsoleCommandSender$.MODULE$;
         this.originalText = originalText;
         this.formattedText = formattedText;
     }

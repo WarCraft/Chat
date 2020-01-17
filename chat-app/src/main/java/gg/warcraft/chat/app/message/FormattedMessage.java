@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import gg.warcraft.chat.api.channel.Channel;
 import gg.warcraft.chat.api.message.Message;
-import gg.warcraft.monolith.api.command.CommandSender;
+import gg.warcraft.monolith.api.core.command.CommandSender;
 
 public class FormattedMessage implements Message {
     private final Channel channel;
