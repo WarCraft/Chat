@@ -39,9 +39,9 @@ lazy val app = (project in file("chat-app"))
   )
   .dependsOn(api)
 
-lazy val spigot = (project in file("gathering-spigot"))
+lazy val spigot = (project in file("chat-spigot"))
   .settings(
-    name := "gathering-spigot",
+    name := "chat-spigot",
     commonSettings,
     assemblySettings,
     resolvers ++= Seq(
