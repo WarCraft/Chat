@@ -2,47 +2,43 @@ package gg.warcraft.chat.profile
 
 import java.util.UUID
 
-import gg.warcraft.monolith.api.util.ColorCode
+import gg.warcraft.monolith.api.core.event.{Event, EventHandler}
+import gg.warcraft.monolith.api.player.PlayerConnectEvent
 
 import scala.collection.mutable
 
-object ChatProfileService {
-  private val profiles = mutable.Map[UUID, ChatProfile]()
-}
+object ChatProfileService extends EventHandler {
+  private val _profiles = mutable.Map[UUID, ChatProfile]()
 
-class ChatProfileService {
-  import ChatProfileService.profiles
+  def profiles: Map[UUID, ChatProfile] =
+    _profiles.asInstanceOf[Map[UUID, ChatProfile]]
 
-  val consoleProfile: ChatProfile =
-    ChatProfile(None, "Console", ChatTag("Server", ColorCode.YELLOW), None, Set())
-
-  def getProfile(playerId: UUID): Option[ChatProfile] =
-    profiles.get(playerId)
-
-  def saveProfile(playerId: UUID, profile: ChatProfile): Unit = {
-    profiles.put(playerId, profile) match {
-      case Some(prev) => if (profile.homeChannel != prev.homeChannel) {
-        // TODO fire home channel changed event
+  def save(profile: ChatProfile): Unit = profile match {
+    case ChatProfile(Some(playerId), _, _, _, _) =>
+      _profiles.put(playerId, profile) match {
+        case Some(prev) =>
+          if (profile.homeChannel != prev.homeChannel) {
+            // TODO fire home channel changed event
+          }
+        case None => ()
       }
-      case None       => ()
-    }
+
+    case _ => throw new IllegalArgumentException
   }
 
-  /*
-    public void onPlayerConnect(PlayerConnectEvent event) {
-      UUID playerId = event.playerId();
-      ChatProfile profile = profileQueryService.getChatProfile(playerId);
-      if (profile == null) {
-          Player player = playerQueryService.getPlayer(playerId);
-          Channel defaultChannel = channelQueryService.getDefaultChannel();
-          profileCommandService.createChatProfile(playerId, player.getName(), defaultChannel);
-      } else {
-          Channel homeChannel = channelQueryService.getChannelByAlias(profile.getHomeChannel());
-          if (homeChannel == null) {
-              Channel defaultChannel = channelQueryService.getDefaultChannel();
-              profileCommandService.setHomeChannel(playerId, defaultChannel);
-          }
-      }
-    }
-   */
+  override def handle(event: Event): Unit = event match {
+    case PlayerConnectEvent(playerId) =>
+//      ChatProfile profile = profileQueryService.getChatProfile(playerId);
+//      if (profile == null) {
+//        Player player = playerQueryService.getPlayer(playerId);
+//        Channel defaultChannel = channelQueryService.getDefaultChannel();
+//        profileCommandService.createChatProfile(playerId, player.getName(), defaultChannel);
+//      } else {
+//        Channel homeChannel = channelQueryService.getChannelByAlias(profile.getHomeChannel());
+//        if (homeChannel == null) {
+//          Channel defaultChannel = channelQueryService.getDefaultChannel();
+//          profileCommandService.setHomeChannel(playerId, defaultChannel);
+//        }
+//      }
+  }
 }

@@ -1,10 +1,15 @@
 package gg.warcraft.chat.channel
 
 import gg.warcraft.chat.ChatConfig
+import gg.warcraft.monolith.api.Implicits
+import gg.warcraft.monolith.api.core.command.{Command, CommandPreExecuteEvent}
+import gg.warcraft.monolith.api.core.event.{EventHandler, EventService, PreEvent}
 
 import scala.collection.mutable
 
-object ChannelService {
+object ChannelService extends EventHandler {
+  var eventService: EventService = Implicits.eventService // TODO replace
+
   private val _channels = mutable.ListBuffer[Channel]()
   private val _channelsByAlias = mutable.Map[String, Channel]()
   private val _channelsByShortcut = mutable.Map[String, Channel]()
@@ -33,8 +38,25 @@ object ChannelService {
 
   def register(channel: Channel): Unit = {
     _channels += channel
-    _channelsByAlias += (channel.name -> channel)
-    channel.aliases.foreach(it => _channelsByAlias += (it -> channel))
-    channel.shortcut.map(it => _channelsByShortcut += (it -> channel))
+    _channelsByAlias += (channel.name.toLowerCase -> channel)
+    channel.aliases.foreach(it => _channelsByAlias += (it.toLowerCase -> channel))
+    channel.shortcut.map(it => _channelsByShortcut += (it.toLowerCase -> channel))
+
+    channel match {
+      case it: GlobalChannel => eventService.subscribe(it)
+      case _                 => ()
+    }
+  }
+
+  override def reduce[T >: PreEvent](event: T): T = event match {
+    case CommandPreExecuteEvent(sender, cmd, label, args, _, _) =>
+      _channelsByAlias.get(label) match {
+        case Some(channel) =>
+          channel.handle(sender, Command(cmd, label, args))
+          event.asInstanceOf[CommandPreExecuteEvent].copy(cancelled = true)
+        case None => event
+      }
+
+    case _ => event
   }
 }
