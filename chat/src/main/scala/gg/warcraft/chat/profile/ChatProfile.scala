@@ -4,12 +4,12 @@ import java.util.UUID
 
 object ChatProfile {
   val console: ChatProfile =
-    ChatProfile(None, "Console", Some(ChatTag.console), None, Set())
+    ChatProfile("Console", None, Some(ChatTag.console), None, Set())
 }
 
 case class ChatProfile(
-    playerId: Option[UUID],
     name: String,
+    playerId: Option[UUID],
     tag: Option[ChatTag],
     homeChannel: Option[String],
     optedOut: Set[String]

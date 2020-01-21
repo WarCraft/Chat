@@ -14,7 +14,7 @@ object ChatProfileService extends EventHandler {
     _profiles.asInstanceOf[Map[UUID, ChatProfile]]
 
   def save(profile: ChatProfile): Unit = profile match {
-    case ChatProfile(Some(playerId), _, _, _, _) =>
+    case ChatProfile(_, Some(playerId), _, _, _) =>
       _profiles.put(playerId, profile) match {
         case Some(prev) =>
           if (profile.homeChannel != prev.homeChannel) {
