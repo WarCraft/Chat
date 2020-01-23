@@ -32,12 +32,12 @@ class ChannelRepository {
   def defaultChannel: Channel = _defaultChannel
 
   def save(channel: Channel, default: Boolean = false): Unit = {
+    if (default) _defaultChannel = channel
+
     _channels += channel
     _channelsByName += (channel.name -> channel)
     _channelsByAlias += (channel.name.toLowerCase -> channel)
     channel.aliases.foreach(it => _channelsByAlias += (it.toLowerCase -> channel))
     channel.shortcut.map(it => _channelsByShortcut += (it -> channel))
-
-    if (default) _defaultChannel = channel
   }
 }
