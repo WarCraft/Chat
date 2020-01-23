@@ -2,15 +2,17 @@ package gg.warcraft.chat.profile
 
 import java.util.UUID
 
+import gg.warcraft.monolith.api.util.ColorCode
+
 object ChatProfile {
   val console: ChatProfile =
-    ChatProfile("Console", None, Some(ChatTag.console), null, Set())
+    ChatProfile("Console", None, ColorCode.YELLOW + "[Server]", null)
 }
 
 case class ChatProfile(
     name: String,
     playerId: Option[UUID],
-    tag: Option[ChatTag],
-    homeChannel: String,
-    optedOut: Set[String]
+    tag: String,
+    home: String,
+    optOut: Set[String] = Set.empty
 )

@@ -1,13 +1,11 @@
-package gg.warcraft.chat.message
+package gg.warcraft.chat
 
 import gg.warcraft.chat.channel.Channel
-import gg.warcraft.chat.profile.{ChatProfile, ChatTag}
+import gg.warcraft.chat.profile.ChatProfile
 import gg.warcraft.monolith.api.util.ColorCode
 
 object Message {
   private val consoleSender = ChatProfile.console
-  private val consoleColor = ChatTag.console.color
-  private val consoleTitle = ChatTag.console.title
 
   def apply(channel: Channel, sender: ChatProfile, text: String): Message = Message(
     channel,
@@ -17,8 +15,7 @@ object Message {
       .replaceAll("<channel\\.name>", channel.name)
       .replaceAll("<channel\\.color>", channel.color.toString)
       .replaceAll("<sender\\.name>", sender.name)
-      .replaceAll("<sender\\.tag>", sender.tag.get.title)
-      .replaceAll("<sender\\.color>", sender.tag.get.color.toString)
+      .replaceAll("<sender\\.tag>", sender.tag)
       .replaceAll("<text>", text)
   )
 
@@ -30,7 +27,7 @@ object Message {
     Message(null, consoleSender, muteText, s"${ColorCode.GRAY}$muteText")
 
   def server(text: String): Message =
-    Message(null, consoleSender, text, s"$consoleColor[$consoleTitle] $text")
+    Message(null, consoleSender, text, s"${consoleSender.tag} $text")
 }
 
 case class Message(

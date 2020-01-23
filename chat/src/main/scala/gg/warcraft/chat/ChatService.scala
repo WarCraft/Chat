@@ -3,7 +3,6 @@ package gg.warcraft.chat
 import java.util.UUID
 
 import gg.warcraft.chat.channel.ChannelService
-import gg.warcraft.chat.message.Message
 import gg.warcraft.chat.profile.ChatProfileService
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
 import gg.warcraft.monolith.api.core.event.{EventHandler, PreEvent}

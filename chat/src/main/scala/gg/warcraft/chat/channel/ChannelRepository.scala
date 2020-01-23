@@ -1,20 +1,18 @@
 package gg.warcraft.chat.channel
 
-import gg.warcraft.monolith.api.Implicits
-import gg.warcraft.monolith.api.core.command.{Command, CommandPreExecuteEvent}
-import gg.warcraft.monolith.api.core.event.{EventHandler, EventService, PreEvent}
-
 import scala.collection.mutable
 
-object ChannelService extends EventHandler {
-  var eventService: EventService = Implicits.eventService // TODO replace
-
+object ChannelRepository {
   private val _channels = mutable.ListBuffer[Channel]()
   private val _channelsByName = mutable.Map[String, Channel]()
   private val _channelsByAlias = mutable.Map[String, Channel]()
   private val _channelsByShortcut = mutable.Map[String, Channel]()
 
   private var _defaultChannel: Channel = _
+}
+
+class ChannelRepository {
+  import ChannelRepository._
 
   def channels: List[Channel] =
     _channels.asInstanceOf[List[Channel]]
@@ -33,36 +31,13 @@ object ChannelService extends EventHandler {
 
   def defaultChannel: Channel = _defaultChannel
 
-  def read(config: ChannelConfig): Unit = {
-    config.globalChannels.foreach(register)
-    config.localChannels.foreach(register)
-    _defaultChannel = _channelsByAlias(config.defaultChannel)
-  }
-
-  def register(channel: Channel): Unit = {
+  def save(channel: Channel, default: Boolean = false): Unit = {
     _channels += channel
     _channelsByName += (channel.name -> channel)
     _channelsByAlias += (channel.name.toLowerCase -> channel)
     channel.aliases.foreach(it => _channelsByAlias += (it.toLowerCase -> channel))
     channel.shortcut.map(it => _channelsByShortcut += (it -> channel))
 
-    channel match {
-      case it: GlobalChannel => eventService.subscribe(it)
-      case _                 => ()
-    }
-  }
-
-  override def reduce[T <: PreEvent](event: T): T = event match {
-    case event: CommandPreExecuteEvent =>
-      import event.{args, cmd, label, sender}
-
-      _channelsByAlias.get(label) match {
-        case Some(channel) =>
-          channel.handle(sender, Command(cmd, label, args))
-          event.copy(cancelled = true).asInstanceOf[T]
-        case None => event
-      }
-
-    case _ => event
+    if (default) _defaultChannel = channel
   }
 }

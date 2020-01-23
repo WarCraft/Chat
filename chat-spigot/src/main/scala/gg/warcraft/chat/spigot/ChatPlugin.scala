@@ -13,7 +13,9 @@ class ChatPlugin extends JavaPlugin {
   override def onEnable(): Unit = {
     val config = null // TODO
 
-    ChannelService.read(config)
+      config.globalChannels.foreach(register)
+      config.localChannels.foreach(register)
+      _defaultChannel = _channelsByAlias(config.defaultChannel)
 
     EventService.subscribe(ChatProfileService)
     EventService.subscribe(ChannelService)
