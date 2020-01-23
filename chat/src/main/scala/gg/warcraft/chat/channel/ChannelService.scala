@@ -1,6 +1,5 @@
 package gg.warcraft.chat.channel
 
-import gg.warcraft.chat.ChatConfig
 import gg.warcraft.monolith.api.Implicits
 import gg.warcraft.monolith.api.core.command.{Command, CommandPreExecuteEvent}
 import gg.warcraft.monolith.api.core.event.{EventHandler, EventService, PreEvent}
@@ -34,7 +33,7 @@ object ChannelService extends EventHandler {
 
   def defaultChannel: Channel = _defaultChannel
 
-  def read(config: ChatConfig): Unit = {
+  def read(config: ChannelConfig): Unit = {
     config.globalChannels.foreach(register)
     config.localChannels.foreach(register)
     _defaultChannel = _channelsByAlias(config.defaultChannel)
