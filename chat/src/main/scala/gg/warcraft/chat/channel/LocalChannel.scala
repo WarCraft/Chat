@@ -1,7 +1,15 @@
 package gg.warcraft.chat.channel
 
+import java.util.stream.Collectors
+
+import gg.warcraft.chat.profile.ChatProfileRepository
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
+import gg.warcraft.monolith.api.entity.player.Player
+import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService
+import gg.warcraft.monolith.api.entity.service.EntityQueryService
 import gg.warcraft.monolith.api.util.ColorCode
+
+import scala.jdk.CollectionConverters._
 
 case class LocalChannel(
     name: String,
@@ -10,51 +18,32 @@ case class LocalChannel(
     color: ColorCode,
     formatString: String,
     radius: Float
+)(
+    private implicit val entityService: EntityQueryService,
+    private implicit val playerService: PlayerQueryService,
+    override protected implicit val profileRepo: ChatProfileRepository
 ) extends Channel {
-  private final val playersOnly = "Only players can talk in local chat channels."
-
-  /*
- Collection<UUID> getNearbyPlayerIds(Location location) {
-        List<Entity> nearbyEntities = entityQueryService.getNearbyEntities(location, channel.getRadius());
-        return nearbyEntities.stream()
-                .filter(entity -> entity instanceof Player)
-                .map(Entity::getId)
-                .collect(Collectors.toList());
-    }
-
-    boolean onPlayerChatCommand(CommandSender sender, String text) {
-        ChatProfile senderProfile = sender.isPlayer()
-                ? profileQueryService.getChatProfile(sender.playerId().get())
-                : profileQueryService.getConsoleChatProfile();
-        String formattedText = formatter.format(channel, senderProfile, text);
-        Message message = messageFactory.createMessage(channel, sender, text, formattedText);
-        Player player = playerQueryService.getPlayer(sender.playerId().get());
-        Collection<UUID> recipientIds = getNearbyPlayerIds(player.getLocation());
-        recipientIds.forEach(recipient -> messageCommandService.sendMessageToPlayer(message, recipient));
-        if (recipientIds.size() == 1) {
-            Message muteMessage = messageFactory.createMuteMessage();
-            messageCommandService.sendMessageToPlayer(muteMessage, sender.playerId().get());
-        }
-
-        logger.log(message);
-        return true;
-    }
-
- */
+  private final val localChannelPlayersOnly =
+    "Only players can talk in local chat channels."
 
   override def handle(sender: CommandSender, cmd: Command): Boolean = sender match {
     case CommandSender(_, Some(playerId)) =>
-      if(cmd.args.isEmpty) {
-        // profileCommandService.setHomeChannel(sender.playerId().get(), channel);
-        true
-      } else {
-        // String text = command.args().mkString(" ");
-        // onPlayerChatCommand(sender, text);
-        true
+      if (cmd.args.isEmpty) makeHome(playerId)
+      else {
+        val player = playerService.getPlayer(playerId)
+        val recipients = entityService
+          .getNearbyEntities(player.getLocation, radius)
+          .stream()
+          .filter(_.isInstanceOf[Player])
+          .map(_.getId)
+          .collect(Collectors.toList)
+          .asScala
+        broadcast(sender, cmd.args.mkString(" "), recipients)
       }
+      true
 
     case _ =>
-      // TODO send playerOnly to console
+      println(localChannelPlayersOnly)
       true
   }
 }

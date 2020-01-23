@@ -24,7 +24,7 @@ case class GlobalChannel(
     permission: Option[String]
 )(
     private implicit val playerService: PlayerQueryService,
-    private implicit val profileRepo: ChatProfileRepository
+    override protected implicit val profileRepo: ChatProfileRepository
 ) extends Channel
     with EventHandler {
   private final val missingPermissions =
@@ -35,22 +35,6 @@ case class GlobalChannel(
     "Only players can set their home channel."
 
   private val recipients = mutable.ListBuffer[UUID]()
-
-  private def broadcast(sender: CommandSender, text: String): Unit = {
-    val message = sender match {
-      case CommandSender(_, Some(playerId)) =>
-        val profile = profileRepo.profiles(playerId)
-        Message(this, profile, text)
-      case _ => Message.server(text)
-    }
-
-    recipients.foreach( /* TODO send message to all recipients */ )
-    if (recipients.size == 1 && sender.isPlayer) {
-      // TODO send mute message to player
-    }
-
-    // NOTE option to log message here
-  }
 
   override def handle(sender: CommandSender, cmd: Command): Boolean = sender match {
     case CommandSender(_, Some(playerId)) =>
@@ -77,19 +61,15 @@ case class GlobalChannel(
       } else true
 
       if (joined) {
-        if (cmd.args.isEmpty) {
-          val newProfile = profileRepo.profiles(playerId).copy(home = name)
-          profileRepo.save(newProfile)
-
-          // TODO send home channel set message
-        } else broadcast(sender, cmd.args.mkString(" "))
+        if (cmd.args.isEmpty) makeHome(playerId)
+        else broadcast(sender, cmd.args.mkString(" "), recipients)
       }
 
       true
 
     case _ =>
       if (cmd.args.isEmpty) println(homeChannelPlayersOnly)
-      else broadcast(sender, cmd.args.mkString(" "))
+      else broadcast(sender, cmd.args.mkString(" "), recipients)
       true
   }
 
