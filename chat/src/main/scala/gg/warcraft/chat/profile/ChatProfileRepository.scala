@@ -26,10 +26,10 @@ class ChatProfileRepository(
   def defaultTag: String = _defaultTag
 
   def load(playerId: UUID): Option[ChatProfile] =
-    db.run(query[ChatProfile].filter(_.playerId == lift(Option(playerId)))).headOption
+    db.run(query[ChatProfile].filter(_.playerId == lift(playerId))).headOption
 
   def save(profile: ChatProfile): Option[ChatProfile] = {
     Future { db.run(query[ChatProfile].insert(lift(profile))) }
-    _profiles.put(profile.playerId.get, profile)
+    _profiles.put(profile.playerId, profile)
   }
 }

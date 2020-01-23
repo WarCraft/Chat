@@ -5,11 +5,16 @@ import gg.warcraft.chat.profile.ChatProfile
 import gg.warcraft.monolith.api.util.ColorCode
 
 object Message {
-  private val consoleSender = ChatProfile.console
+  private final val muteText = "No one heard you!"
+  def mute: Message =
+    Message(null, None, muteText, s"${ColorCode.GRAY}$muteText")
+
+  def server(text: String): Message =
+    Message(null, None, text, s"${ColorCode.YELLOW}[Server] $text")
 
   def apply(channel: Channel, sender: ChatProfile, text: String): Message = Message(
     channel,
-    sender,
+    Some(sender),
     text,
     channel.color + channel.formatString
       .replaceAll("<channel\\.name>", channel.name)
@@ -18,21 +23,11 @@ object Message {
       .replaceAll("<sender\\.tag>", sender.tag)
       .replaceAll("<text>", text)
   )
-
-  def console(text: String, formattedText: String): Message =
-    Message(null, consoleSender, text, formattedText)
-
-  private final val muteText = "No one heard you!"
-  def mute: Message =
-    Message(null, consoleSender, muteText, s"${ColorCode.GRAY}$muteText")
-
-  def server(text: String): Message =
-    Message(null, consoleSender, text, s"${consoleSender.tag} $text")
 }
 
 case class Message(
     channel: Channel,
-    sender: ChatProfile,
+    sender: Option[ChatProfile],
     original: String,
     formatted: String
 )
