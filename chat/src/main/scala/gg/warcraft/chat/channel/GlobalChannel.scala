@@ -87,8 +87,9 @@ case class GlobalChannel(
         } else {
           //String text = command.args().mkString(" ");
           // onChatCommand(sender, text);
+          true
         }
-      }
+      } else false
 
     case _ =>
       if (cmd.args.isEmpty) {
@@ -98,6 +99,7 @@ case class GlobalChannel(
       } else {
 //        String text = command.args().mkString(" ");
 //        onChatCommand(sender, text);
+        true
       }
   }
 

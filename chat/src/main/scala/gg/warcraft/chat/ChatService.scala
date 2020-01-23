@@ -2,14 +2,20 @@ package gg.warcraft.chat
 
 import java.util.UUID
 
-import gg.warcraft.chat.channel.ChannelService
-import gg.warcraft.chat.profile.ChatProfileService
+import gg.warcraft.chat.channel.ChannelRepository
+import gg.warcraft.chat.profile.ChatProfileRepository
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
 import gg.warcraft.monolith.api.core.event.{EventHandler, PreEvent}
 
 import scala.collection.mutable
 
-object ChatService extends EventHandler {
+class ChatService(
+    private implicit val channelRepo: ChannelRepository,
+    private implicit val profileRepo: ChatProfileRepository
+) extends EventHandler {
+  import channelRepo._
+  import profileRepo._
+
   private val handlers = mutable.Map[UUID, ChatHandler]()
 
   def register(handler: ChatHandler, playerId: UUID): Unit =
@@ -28,22 +34,22 @@ object ChatService extends EventHandler {
       import event.{name, playerId, text}
 
       handlers.get(playerId) match {
-        case Some(handler) =>
+        case Some(handler) => ()
           // run on next sync tick as chat events are async
-          taskService.runNextTick(() -> {
-            if (handler.handle(playerId, text)) handlers -= playerId
-          })
+//          taskService.runNextTick(() -> {
+//            if (handler.handle(playerId, text)) handlers -= playerId
+//          })
 
         case None =>
           var trimmedText = text
-          val channel = ChannelService.findChannelForShortcut(text) match {
+          val channel = findChannelForShortcut(text) match {
             case Some(channel) =>
               trimmedText = text.substring(channel.shortcut.get.length).trim
               channel
             case None =>
-              ChannelService.channelsByName.getOrElse(
-                ChatProfileService.profiles(playerId).homeChannel,
-                ChannelService.defaultChannel
+              channelsByName.getOrElse(
+                profiles(playerId).home,
+                defaultChannel
               )
           }
 

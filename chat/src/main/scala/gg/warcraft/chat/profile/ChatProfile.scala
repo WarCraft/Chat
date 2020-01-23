@@ -13,6 +13,5 @@ case class ChatProfile(
     name: String,
     playerId: Option[UUID],
     tag: String,
-    home: String,
-    optOut: Set[String] = Set.empty
+    home: String
 )

@@ -5,8 +5,8 @@ import gg.warcraft.monolith.api.core.event.{Event, EventHandler}
 import gg.warcraft.monolith.api.player.PlayerPreConnectEvent
 
 class ChatProfileEventHandler(
-    private implicit val profileRepo: ChatProfileRepository,
-    private implicit val channelRepo: ChannelRepository
+    private implicit val channelRepo: ChannelRepository,
+    private implicit val profileRepo: ChatProfileRepository
 ) extends EventHandler {
   import channelRepo.{channelsByName, defaultChannel}
   import profileRepo.{profiles, save}
