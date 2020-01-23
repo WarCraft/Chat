@@ -2,9 +2,12 @@ package gg.warcraft.chat.channel
 
 import java.util.UUID
 
+import gg.warcraft.chat.Message
+import gg.warcraft.chat.profile.ChatProfileRepository
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
 import gg.warcraft.monolith.api.core.event.{Event, EventHandler}
 import gg.warcraft.monolith.api.entity.player.Player
+import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService
 import gg.warcraft.monolith.api.player.{
   PlayerConnectEvent, PlayerDisconnectEvent, PlayerPermissionsChangedEvent
 }
@@ -19,6 +22,9 @@ case class GlobalChannel(
     color: ColorCode,
     formatString: String,
     permission: Option[String]
+)(
+    private implicit val playerService: PlayerQueryService,
+    private implicit val profileRepo: ChatProfileRepository
 ) extends Channel
     with EventHandler {
   private final val missingPermissions =
@@ -30,51 +36,41 @@ case class GlobalChannel(
 
   private val recipients = mutable.ListBuffer[UUID]()
 
-  /*
-   boolean onChatCommand(CommandSender sender, String text) {
-        ChatProfile senderProfile = sender.isPlayer()
-                ? profileQueryService.getChatProfile(sender.playerId().get())
-                : profileQueryService.getConsoleChatProfile();
-        String formattedText = formatter.format(channel, senderProfile, text);
-        Message message = messageFactory.createMessage(channel, sender, text, formattedText);
-
-        channel.getRecipients().forEach(playerId -> messageCommandService.sendMessageToPlayer(message, playerId));
-        if (channel.getRecipients().size() == 1) {
-            Message muteMessage = messageFactory.createMuteMessage();
-            if (sender.isPlayer()) {
-                messageCommandService.sendMessageToPlayer(muteMessage, sender.playerId().get());
-            } else {
-                messageCommandService.sendMessageToConsole(muteMessage);
-            }
-        }
-
-        logger.log(message);
-        return true;
+  private def broadcast(sender: CommandSender, text: String): Unit = {
+    val message = sender match {
+      case CommandSender(_, Some(playerId)) =>
+        val profile = profileRepo.profiles(playerId)
+        Message(this, profile, text)
+      case _ => Message.server(text)
     }
-   */
+
+    recipients.foreach( /* TODO send message to all recipients */ )
+    if (recipients.size == 1 && sender.isPlayer) {
+      // TODO send mute message to player
+    }
+
+    // NOTE option to log message here
+  }
 
   override def handle(sender: CommandSender, cmd: Command): Boolean = sender match {
     case CommandSender(_, Some(playerId)) =>
       val joined = if (!recipients.contains(playerId)) {
         permission match {
           case Some(permission) =>
-            val player: Player = null // TODO PlayerService.getPlayer(event.playerId)
+            val player: Player = playerService.getPlayer(playerId)
             if (player.hasPermission(permission)) {
               recipients += playerId
-              val message = successfullyJoined.format(name)
-              // Message joinedMessage = messageFactory.createServerMessage(joined);
+              val message = Message.server(successfullyJoined.format(name))
               // messageCommandService.sendMessageToPlayer(joinedMessage, sender.playerId().get());
               true
             } else {
-              val message = missingPermissions.format(name)
-              // Message missingPermissionsMessage = messageFactory.createServerMessage(missingPermissions);
+              val message = Message.server(missingPermissions.format(name))
               // messageCommandService.sendMessageToPlayer(missingPermissionsMessage, sender.playerId().get());
               false
             }
           case _ =>
             recipients += playerId
-            val message = successfullyJoined.format(name)
-            // Message joinedMessage = messageFactory.createServerMessage(joined);
+            val message = Message.server(successfullyJoined.format(name))
             // messageCommandService.sendMessageToPlayer(joinedMessage, sender.playerId().get());
             true
         }
@@ -82,54 +78,50 @@ case class GlobalChannel(
 
       if (joined) {
         if (cmd.args.isEmpty) {
-          // profileCommandService.setHomeChannel(sender.playerId().get(), channel)
-          true
-        } else {
-          //String text = command.args().mkString(" ");
-          // onChatCommand(sender, text);
-          true
-        }
-      } else false
+          val newProfile = profileRepo.profiles(playerId).copy(home = name)
+          profileRepo.save(newProfile)
+
+          // TODO send home channel set message
+        } else broadcast(sender, cmd.args.mkString(" "))
+      }
+
+      true
 
     case _ =>
-      if (cmd.args.isEmpty) {
-//        Message homeChannelPlayersOnly = messageFactory.createServerMessage(HOME_CHANNEL_PLAYERS_ONLY);
-//        messageCommandService.sendMessageToConsole(homeChannelPlayersOnly);
-        true;
-      } else {
-//        String text = command.args().mkString(" ");
-//        onChatCommand(sender, text);
-        true
-      }
+      if (cmd.args.isEmpty) println(homeChannelPlayersOnly)
+      else broadcast(sender, cmd.args.mkString(" "))
+      true
   }
 
   override def handle(event: Event): Unit = event match {
-    case event: PlayerConnectEvent =>
+    case PlayerConnectEvent(playerId, _) =>
       permission match {
         case Some(permission) =>
-          val player: Player = null // TODO PlayerService.getPlayer(event.playerId)
-          if (player.hasPermission(permission)) recipients += event.playerId
-        case _ => recipients += event.playerId
+          val player: Player = playerService.getPlayer(playerId)
+          if (player.hasPermission(permission)) recipients += playerId
+        case _ => recipients += playerId
       }
 
-    case event: PlayerPermissionsChangedEvent =>
+    case PlayerPermissionsChangedEvent(playerId, _) =>
       permission match {
         case Some(permission) =>
-          val player: Player = null // TODO PlayerService.getPlayer(event.playerId)
-          if (recipients.contains(event.playerId)) {
-            if (!player.hasPermission(permission)) recipients -= event.playerId
+          val player: Player = playerService.getPlayer(playerId)
+          if (recipients.contains(playerId)) {
+            if (!player.hasPermission(permission)) recipients -= playerId
           } else {
-            if (player.hasPermission(permission)) recipients += event.playerId
+            if (player.hasPermission(permission)) recipients += playerId
           }
         case _ => ()
       }
 
-    case event: PlayerDisconnectEvent =>
+    case PlayerDisconnectEvent(playerId, _) =>
       permission match {
         case Some(permission) =>
-          val player: Player = null // TODO PlayerService.getPlayer(event.playerId)
-          if (player.hasPermission(permission)) recipients -= event.playerId
-        case _ => recipients -= event.playerId
+          val player: Player = playerService.getPlayer(playerId)
+          if (player.hasPermission(permission)) recipients -= playerId
+        case _ => recipients -= playerId
       }
+
+    case _ => ()
   }
 }
