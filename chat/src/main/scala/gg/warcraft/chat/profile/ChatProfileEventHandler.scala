@@ -11,18 +11,32 @@ class ChatProfileEventHandler(
   import channelRepo.{channelsByName, defaultChannel}
   import profileRepo.{defaultTag, load, profiles, save}
 
-  private def updateHome(profile: ChatProfile): Unit =
-    channelsByName
-      .get(profile.home)
-      .orElse(save(profile.copy(home = defaultChannel.name)))
+  private def update(profile: ChatProfile, name: String): Unit = {
+    var update = false
+
+    val nameProfile =
+      if (profile.name != name) {
+        update = true
+        profile.copy(name = name)
+      } else profile
+
+    val nameChannelProfile =
+      if (channelsByName.get(profile.home).isDefined) nameProfile
+      else {
+        update = true
+        nameProfile.copy(home = defaultChannel.name)
+      }
+
+    if (update) save(nameChannelProfile)
+  }
 
   override def handle(event: Event): Unit = event match {
     case PlayerPreConnectEvent(playerId, name) =>
       profiles.get(playerId) match {
-        case Some(it) => updateHome(it)
+        case Some(it) => update(it, name)
         case None =>
           load(playerId) match {
-            case Some(it) => updateHome(it)
+            case Some(it) => update(it, name)
             case _ =>
               val newProfile = ChatProfile(
                 name,
