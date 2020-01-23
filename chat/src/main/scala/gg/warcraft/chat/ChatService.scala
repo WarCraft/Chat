@@ -2,10 +2,11 @@ package gg.warcraft.chat
 
 import java.util.UUID
 
-import gg.warcraft.chat.channel.{Channel, ChannelService}
-import gg.warcraft.chat.profile.{ChatProfile, ChatProfileService}
+import gg.warcraft.chat.channel.ChannelService
+import gg.warcraft.chat.message.Message
+import gg.warcraft.chat.profile.ChatProfileService
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
-import gg.warcraft.monolith.api.core.event.{Event, EventHandler}
+import gg.warcraft.monolith.api.core.event.{EventHandler, PreEvent}
 
 import scala.collection.mutable
 
@@ -15,8 +16,18 @@ object ChatService extends EventHandler {
   def register(handler: ChatHandler, playerId: UUID): Unit =
     handlers += (playerId -> handler)
 
-  override def handle(event: Event): Unit = event match {
-    case AsyncPlayerChatEvent(playerId, text) =>
+  def broadcast(message: Message): Unit = {
+    // TODO send message to all online players
+  }
+
+  def broadcastStaff(message: Message): Unit = {
+    // TODO send message to all online players with staff permission
+  }
+
+  override def reduce[T <: PreEvent](event: T): T = event match {
+    case event: AsyncPlayerPreChatEvent =>
+      import event.{name, playerId, text}
+
       handlers.get(playerId) match {
         case Some(handler) =>
           // run on next sync tick as chat events are async
@@ -25,27 +36,27 @@ object ChatService extends EventHandler {
           })
 
         case None =>
-          var channel: Channel = null
           var trimmedText = text
-          ChannelService.findChannelForShortcut(text) match {
-            case Some(it) =>
-              channel = it
-              trimmedText = text.substring(it.shortcut.get.length).trim
+          val channel = ChannelService.findChannelForShortcut(text) match {
+            case Some(channel) =>
+              trimmedText = text.substring(channel.shortcut.get.length).trim
+              channel
             case None =>
-              channel = ChatProfileService.profiles(playerId) match {
-                case ChatProfile(_, _, _, Some(homeChannel), _) =>
-                  ChannelService.channelsByAlias(homeChannel)
-                case _ => ChannelService.defaultChannel
-              }
+              ChannelService.channelsByName.getOrElse(
+                ChatProfileService.profiles(playerId).homeChannel,
+                ChannelService.defaultChannel
+              )
           }
 
           val command = channel.name.toLowerCase
           channel.handle(
-            CommandSender("", Some(null)),
+            CommandSender(name, Some(playerId)),
             Command(command, command, text.split(" "))
           )
       }
 
-    case _ => ()
+      event.copy(cancelled = true).asInstanceOf[T]
+
+    case _ => event
   }
 }

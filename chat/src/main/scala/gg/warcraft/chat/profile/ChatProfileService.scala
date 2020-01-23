@@ -2,6 +2,7 @@ package gg.warcraft.chat.profile
 
 import java.util.UUID
 
+import gg.warcraft.chat.channel.ChannelService
 import gg.warcraft.monolith.api.core.event.{Event, EventHandler}
 import gg.warcraft.monolith.api.player.PlayerConnectEvent
 
@@ -27,7 +28,25 @@ object ChatProfileService extends EventHandler {
   }
 
   override def handle(event: Event): Unit = event match {
-    case PlayerConnectEvent(playerId) =>
+    case PlayerConnectEvent(playerId, name) =>
+      _profiles.get(playerId) match {
+        case Some(profile) =>
+         ChannelService.channelsByName.get(profile.homeChannel) match {
+           case None =>
+             // TODO update profile with new default channel
+           case _ => ()
+         }
+        case None =>
+          val homeChannel = ChannelService.defaultChannel
+          val profile = ChatProfile(
+            name,
+            Some(playerId),
+            None,
+            homeChannel.name,
+            Set.empty
+          )
+          _profiles += (playerId -> profile)
+      }
 //      ChatProfile profile = profileQueryService.getChatProfile(playerId);
 //      if (profile == null) {
 //        Player player = playerQueryService.getPlayer(playerId);

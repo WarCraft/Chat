@@ -11,6 +11,7 @@ object ChannelService extends EventHandler {
   var eventService: EventService = Implicits.eventService // TODO replace
 
   private val _channels = mutable.ListBuffer[Channel]()
+  private val _channelsByName = mutable.Map[String, Channel]()
   private val _channelsByAlias = mutable.Map[String, Channel]()
   private val _channelsByShortcut = mutable.Map[String, Channel]()
 
@@ -18,6 +19,9 @@ object ChannelService extends EventHandler {
 
   def channels: List[Channel] =
     _channels.asInstanceOf[List[Channel]]
+
+  def channelsByName: Map[String, Channel] =
+    _channelsByName.asInstanceOf[Map[String, Channel]]
 
   def channelsByAlias: Map[String, Channel] =
     _channelsByAlias.asInstanceOf[Map[String, Channel]]
@@ -38,9 +42,10 @@ object ChannelService extends EventHandler {
 
   def register(channel: Channel): Unit = {
     _channels += channel
+    _channelsByName += (channel.name -> channel)
     _channelsByAlias += (channel.name.toLowerCase -> channel)
     channel.aliases.foreach(it => _channelsByAlias += (it.toLowerCase -> channel))
-    channel.shortcut.map(it => _channelsByShortcut += (it.toLowerCase -> channel))
+    channel.shortcut.map(it => _channelsByShortcut += (it -> channel))
 
     channel match {
       case it: GlobalChannel => eventService.subscribe(it)
@@ -48,12 +53,14 @@ object ChannelService extends EventHandler {
     }
   }
 
-  override def reduce[T >: PreEvent](event: T): T = event match {
-    case CommandPreExecuteEvent(sender, cmd, label, args, _, _) =>
+  override def reduce[T <: PreEvent](event: T): T = event match {
+    case event: CommandPreExecuteEvent =>
+      import event.{args, cmd, label, sender}
+
       _channelsByAlias.get(label) match {
         case Some(channel) =>
           channel.handle(sender, Command(cmd, label, args))
-          event.asInstanceOf[CommandPreExecuteEvent].copy(cancelled = true)
+          event.copy(cancelled = true).asInstanceOf[T]
         case None => event
       }
 
