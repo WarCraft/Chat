@@ -31,14 +31,6 @@ lazy val chat = (project in file("chat"))
     libraryDependencies ++= commonDependencies
   )
 
-lazy val app = (project in file("chat-app"))
-  .settings(
-    name := "chat-app",
-    commonSettings,
-    libraryDependencies ++= commonDependencies
-  )
-  .dependsOn(chat)
-
 lazy val spigot = (project in file("chat-spigot"))
   .settings(
     name := "chat-spigot",
@@ -51,4 +43,4 @@ lazy val spigot = (project in file("chat-spigot"))
       "com.destroystokyo.paper" % "paper-api" % "1.15.1-R0.1-SNAPSHOT" % Provided
     )
   )
-  .dependsOn(app)
+  .dependsOn(chat)
