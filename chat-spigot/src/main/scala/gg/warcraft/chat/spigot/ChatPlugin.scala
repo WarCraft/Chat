@@ -10,9 +10,7 @@ import org.bukkit.Server
 import org.bukkit.plugin.java.JavaPlugin
 
 class ChatPlugin extends JavaPlugin {
-  override def onLoad(): Unit = {
-    saveDefaultConfig()
-  }
+  override def onLoad(): Unit = saveDefaultConfig()
 
   override def onEnable(): Unit = {
     val config: ChatConfig = null // TODO map getConfig.toString
