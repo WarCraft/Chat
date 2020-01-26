@@ -26,14 +26,6 @@ class ChatService(
   def register(handler: ChatHandler, playerId: UUID): Unit =
     handlers += (playerId -> handler)
 
-  def broadcast(message: Message): Unit = {
-    // TODO send message to all online players
-  }
-
-  def broadcastStaff(message: Message): Unit = {
-    // TODO send message to all online players with staff permission
-  }
-
   override def reduce[T <: PreEvent](event: T): T = event match {
     case it: AsyncPlayerPreChatEvent => reduce(it).asInstanceOf[T]
     case _                           => event

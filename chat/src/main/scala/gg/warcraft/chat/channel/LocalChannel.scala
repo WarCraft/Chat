@@ -2,6 +2,7 @@ package gg.warcraft.chat.channel
 
 import java.util.stream.Collectors
 
+import gg.warcraft.chat.MessageAdapter
 import gg.warcraft.chat.profile.ChatProfileRepository
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
 import gg.warcraft.monolith.api.entity.player.Player
@@ -21,7 +22,8 @@ case class LocalChannel(
 )(
     private implicit val entityService: EntityQueryService,
     private implicit val playerService: PlayerQueryService,
-    override protected implicit val profileRepo: ChatProfileRepository
+    override protected implicit val profileRepo: ChatProfileRepository,
+    override protected implicit val messageAdapter: MessageAdapter
 ) extends Channel {
   private final val localChannelPlayersOnly =
     "Only players can talk in local chat channels."
