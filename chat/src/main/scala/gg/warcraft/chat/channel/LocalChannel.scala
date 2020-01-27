@@ -1,7 +1,5 @@
 package gg.warcraft.chat.channel
 
-import java.util.stream.Collectors
-
 import gg.warcraft.chat.MessageAdapter
 import gg.warcraft.chat.profile.ChatProfileService
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
@@ -35,11 +33,9 @@ case class LocalChannel(
         val player = playerService.getPlayer(playerId)
         val recipients = entityService
           .getNearbyEntities(player.getLocation, radius)
-          .stream()
+          .asScala
           .filter(_.isInstanceOf[Player])
           .map(_.getId)
-          .collect(Collectors.toList)
-          .asScala
         broadcast(sender, cmd.args.mkString(" "), recipients)
       }
       true
