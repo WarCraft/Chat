@@ -1,4 +1,4 @@
-package gg.warcraft.chat
+package gg.warcraft.chat.message
 
 import java.util.UUID
 

@@ -1,6 +1,6 @@
 package gg.warcraft.chat.channel
 
-import gg.warcraft.chat.MessageAdapter
+import gg.warcraft.chat.message.MessageAdapter
 import gg.warcraft.chat.profile.ChatProfileService
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
 import gg.warcraft.monolith.api.entity.player.Player

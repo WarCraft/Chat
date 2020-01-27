@@ -2,8 +2,8 @@ package gg.warcraft.chat.channel
 
 import java.util.UUID
 
+import gg.warcraft.chat.message.{Message, MessageAdapter}
 import gg.warcraft.chat.profile.ChatProfileService
-import gg.warcraft.chat.{Message, MessageAdapter}
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
 import gg.warcraft.monolith.api.core.event.{Event, EventHandler}
 import gg.warcraft.monolith.api.entity.player.Player

@@ -2,7 +2,7 @@ package gg.warcraft.chat.spigot
 
 import java.util.UUID
 
-import gg.warcraft.chat.{Message, MessageAdapter}
+import gg.warcraft.chat.message.{Message, MessageAdapter}
 import gg.warcraft.monolith.api.core.AuthorizationService
 import org.bukkit.Server
 

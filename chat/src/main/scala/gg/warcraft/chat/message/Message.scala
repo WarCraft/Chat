@@ -1,4 +1,4 @@
-package gg.warcraft.chat
+package gg.warcraft.chat.message
 
 import gg.warcraft.chat.channel.Channel
 import gg.warcraft.chat.profile.ChatProfile
