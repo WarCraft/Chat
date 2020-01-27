@@ -40,6 +40,7 @@ lazy val spigot = (project in file("chat-spigot"))
       "PaperMC" at "https://papermc.io/repo/repository/maven-public/"
     ),
     libraryDependencies ++= commonDependencies ++ Seq(
+      "gg.warcraft" %% "monolith-spigot" % "15.0.0-SNAPSHOT" % Provided,
       "com.destroystokyo.paper" % "paper-api" % "1.15.1-R0.1-SNAPSHOT" % Provided
     )
   )
