@@ -2,7 +2,7 @@ package gg.warcraft.chat.channel
 
 import java.util.UUID
 
-import gg.warcraft.chat.profile.ChatProfileRepository
+import gg.warcraft.chat.profile.ChatProfileService
 import gg.warcraft.chat.{Message, MessageAdapter}
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
 import gg.warcraft.monolith.api.core.event.{Event, EventHandler}
@@ -24,7 +24,7 @@ case class GlobalChannel(
     permission: Option[String]
 )(
     private implicit val playerService: PlayerQueryService,
-    override protected implicit val profileRepo: ChatProfileRepository,
+    override protected implicit val profileService: ChatProfileService,
     override protected implicit val messageAdapter: MessageAdapter
 ) extends Channel
     with EventHandler {

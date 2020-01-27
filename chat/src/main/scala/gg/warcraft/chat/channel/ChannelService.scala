@@ -2,7 +2,7 @@ package gg.warcraft.chat.channel
 
 import scala.collection.mutable
 
-object ChannelRepository {
+object ChannelService {
   private val _channels = mutable.ListBuffer[Channel]()
   private val _channelsByName = mutable.Map[String, Channel]()
   private val _channelsByAlias = mutable.Map[String, Channel]()
@@ -11,8 +11,8 @@ object ChannelRepository {
   private var _defaultChannel: Channel = _
 }
 
-class ChannelRepository {
-  import ChannelRepository._
+class ChannelService {
+  import ChannelService._
 
   def channels: List[Channel] =
     _channels.asInstanceOf[List[Channel]]
@@ -31,7 +31,7 @@ class ChannelRepository {
 
   def defaultChannel: Channel = _defaultChannel
 
-  def save(channel: Channel, default: Boolean = false): Unit = {
+  def saveChannel(channel: Channel, default: Boolean = false): Unit = {
     if (default) _defaultChannel = channel
 
     _channels += channel

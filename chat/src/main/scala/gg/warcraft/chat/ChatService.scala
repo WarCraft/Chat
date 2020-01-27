@@ -2,10 +2,12 @@ package gg.warcraft.chat
 
 import java.util.UUID
 
-import gg.warcraft.chat.channel.ChannelRepository
-import gg.warcraft.chat.profile.ChatProfileRepository
+import gg.warcraft.chat.channel.ChannelService
+import gg.warcraft.chat.profile.ChatProfileService
 import gg.warcraft.monolith.api.core.TaskService
-import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
+import gg.warcraft.monolith.api.core.command.{
+  Command, CommandPreExecuteEvent, CommandSender
+}
 import gg.warcraft.monolith.api.core.event.{EventHandler, PreEvent}
 
 import scala.collection.mutable
@@ -16,18 +18,19 @@ object ChatService {
 
 class ChatService(
     private implicit val taskService: TaskService,
-    private implicit val channelRepo: ChannelRepository,
-    private implicit val profileRepo: ChatProfileRepository
+    private implicit val channelService: ChannelService,
+    private implicit val profileService: ChatProfileService
 ) extends EventHandler {
   import ChatService.handlers
-  import channelRepo.{channelsByName, defaultChannel, findChannelForShortcut}
-  import profileRepo.profiles
+  import channelService.{channelsByName, defaultChannel, findChannelForShortcut}
+  import profileService.profiles
 
   def register(handler: ChatHandler, playerId: UUID): Unit =
     handlers += (playerId -> handler)
 
   override def reduce[T <: PreEvent](event: T): T = event match {
     case it: AsyncPlayerPreChatEvent => reduce(it).asInstanceOf[T]
+    case it: CommandPreExecuteEvent  => reduce(it).asInstanceOf[T]
     case _                           => event
   }
 
@@ -62,5 +65,16 @@ class ChatService(
     }
 
     event.copy(cancelled = true)
+  }
+
+  private def reduce(event: CommandPreExecuteEvent): CommandPreExecuteEvent = {
+    import event.{args, cmd, label, sender}
+
+    channelService.channelsByAlias.get(label) match {
+      case Some(channel) =>
+        channel.handle(sender, Command(cmd, label, args))
+        event.copy(cancelled = true)
+      case None => event
+    }
   }
 }

@@ -1,8 +1,8 @@
 package gg.warcraft.chat.spigot
 
 import com.typesafe.config.Config
-import gg.warcraft.chat.channel.{ChannelEventHandler, ChannelRepository}
-import gg.warcraft.chat.profile.{ChatProfileEventHandler, ChatProfileRepository}
+import gg.warcraft.chat.channel.ChannelService
+import gg.warcraft.chat.profile.ChatProfileService
 import gg.warcraft.chat.{ChatConfig, ChatService}
 import gg.warcraft.monolith.api.core.event.EventService
 import gg.warcraft.monolith.api.core.{AuthorizationService, TaskService}
@@ -27,24 +27,18 @@ class ChatPlugin extends JavaPlugin {
       taskService: TaskService
   ): Unit = {
     implicit val messageAdapter = new SpigotMessageAdapter
-
-    implicit val channelRepo = new ChannelRepository
-    implicit val channelHandler = new ChannelEventHandler
-
-    implicit val profileRepo = new ChatProfileRepository
-    implicit val profileHandler = new ChatProfileEventHandler
-
+    implicit val channelService = new ChannelService
+    implicit val profileService = new ChatProfileService
     implicit val chatService = new ChatService
 
     config.globalChannels.foreach(it => {
-      channelRepo.save(it, it.name == config.defaultChannel)
+      channelService.saveChannel(it, it.name == config.defaultChannel)
     })
     config.localChannels.foreach(it => {
-      channelRepo.save(it, it.name == config.defaultChannel)
+      channelService.saveChannel(it, it.name == config.defaultChannel)
     })
 
-    eventService.subscribe(channelHandler)
-    eventService.subscribe(profileHandler)
+    eventService.subscribe(profileService)
     eventService.subscribe(chatService)
 
     getServer.getPluginManager.registerEvents(new SpigotChatEventMapper, this)
