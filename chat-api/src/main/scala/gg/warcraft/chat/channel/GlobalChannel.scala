@@ -44,19 +44,20 @@ case class GlobalChannel(
           case Some(permission) =>
             val player: Player = playerService.getPlayer(playerId)
             if (player.hasPermission(permission)) {
-              recipients += playerId
+              recipients.addOne(playerId)
               val message = Message.server(successfullyJoined.format(name))
-              // messageCommandService.sendMessageToPlayer(joinedMessage, sender.playerId().get());
+              messageAdapter.send(message, playerId)
               true
             } else {
               val message = Message.server(missingPermissions.format(name))
-              // messageCommandService.sendMessageToPlayer(missingPermissionsMessage, sender.playerId().get());
+              messageAdapter.send(message, playerId)
               false
             }
+
           case _ =>
-            recipients += playerId
+            recipients.addOne(playerId)
             val message = Message.server(successfullyJoined.format(name))
-            // messageCommandService.sendMessageToPlayer(joinedMessage, sender.playerId().get());
+            messageAdapter.send(message, playerId)
             true
         }
       } else true
@@ -75,34 +76,49 @@ case class GlobalChannel(
   }
 
   override def handle(event: Event): Unit = event match {
-    case PlayerConnectEvent(playerId, _) =>
-      permission match {
-        case Some(permission) =>
-          val player: Player = playerService.getPlayer(playerId)
-          if (player.hasPermission(permission)) recipients += playerId
-        case _ => recipients += playerId
-      }
+    case it: PlayerConnectEvent            => handle(it)
+    case it: PlayerPermissionsChangedEvent => handle(it)
+    case it: PlayerDisconnectEvent         => handle(it)
+    case _                                 => ()
+  }
 
-    case PlayerPermissionsChangedEvent(playerId, _) =>
-      permission match {
-        case Some(permission) =>
-          val player: Player = playerService.getPlayer(playerId)
-          if (recipients.contains(playerId)) {
-            if (!player.hasPermission(permission)) recipients -= playerId
-          } else {
-            if (player.hasPermission(permission)) recipients += playerId
-          }
-        case _ => ()
-      }
+  private def handle(event: PlayerConnectEvent): Unit = {
+    import event.playerId
 
-    case PlayerDisconnectEvent(playerId, _) =>
-      permission match {
-        case Some(permission) =>
-          val player: Player = playerService.getPlayer(playerId)
-          if (player.hasPermission(permission)) recipients -= playerId
-        case _ => recipients -= playerId
-      }
+    permission match {
+      case Some(permission) =>
+        val player: Player = playerService.getPlayer(playerId)
+        if (player.hasPermission(permission)) recipients.addOne(playerId)
 
-    case _ => ()
+      case None => recipients.addOne(playerId)
+    }
+  }
+
+  private def handle(event: PlayerPermissionsChangedEvent): Unit = {
+    import event.playerId
+
+    permission match {
+      case Some(permission) =>
+        val player: Player = playerService.getPlayer(playerId)
+        if (recipients.contains(playerId)) {
+          if (!player.hasPermission(permission)) recipients.subtractOne(playerId)
+        } else {
+          if (player.hasPermission(permission)) recipients.addOne(playerId)
+        }
+
+      case None => ()
+    }
+  }
+
+  private def handle(event: PlayerDisconnectEvent): Unit = {
+    import event.playerId
+
+    permission match {
+      case Some(permission) =>
+        val player: Player = playerService.getPlayer(playerId)
+        if (player.hasPermission(permission)) recipients.subtractOne(playerId)
+
+      case None => recipients.subtractOne(playerId)
+    }
   }
 }

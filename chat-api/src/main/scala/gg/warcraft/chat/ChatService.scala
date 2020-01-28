@@ -22,11 +22,11 @@ class ChatService(
     private implicit val profileService: ChatProfileService
 ) extends EventHandler {
   import ChatService.handlers
-  import channelService.{channelsByName, defaultChannel, findChannelForShortcut}
+  import channelService.{channelsByName, channelsByShortcut, defaultChannel}
   import profileService.profiles
 
   def register(handler: ChatHandler, playerId: UUID): Unit =
-    handlers += (playerId -> handler)
+    handlers.put(playerId, handler)
 
   override def reduce[T <: PreEvent](event: T): T = event match {
     case it: AsyncPlayerPreChatEvent => reduce(it).asInstanceOf[T]
@@ -41,15 +41,16 @@ class ChatService(
       case Some(handler) =>
         // run on next sync tick as chat events are async
         taskService.runNextTick(() => {
-          if (handler.handle(playerId, text)) handlers -= playerId
+          if (handler.handle(playerId, text)) handlers.subtractOne(playerId)
         })
 
       case None =>
         var trimmedText = text
-        val channel = findChannelForShortcut(text) match {
-          case Some(channel) =>
+        val channel = channelsByShortcut.find(it => text.startsWith(it._1)) match {
+          case Some((_, channel)) =>
             trimmedText = text.substring(channel.shortcut.get.length).trim
             channel
+
           case None =>
             channelsByName.getOrElse(
               profiles(playerId).home,
@@ -74,6 +75,7 @@ class ChatService(
       case Some(channel) =>
         channel.handle(sender, Command(cmd, label, args))
         event.copy(cancelled = true)
+
       case None => event
     }
   }

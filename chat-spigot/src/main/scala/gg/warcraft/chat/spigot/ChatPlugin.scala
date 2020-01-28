@@ -32,12 +32,8 @@ class ChatPlugin extends JavaPlugin {
     implicit val profileService = new ChatProfileService
     implicit val chatService = new ChatService
 
-    config.globalChannels.foreach(it => {
-      channelService.saveChannel(it, it.name == config.defaultChannel)
-    })
-    config.localChannels.foreach(it => {
-      channelService.saveChannel(it, it.name == config.defaultChannel)
-    })
+    channelService.readConfig(config)
+    profileService.readConfig(config)
 
     eventService.subscribe(profileService)
     eventService.subscribe(chatService)

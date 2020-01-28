@@ -41,7 +41,7 @@ trait Channel extends CommandHandler {
     val profile = profileService.profiles(playerId)
     if (profile.home != name) {
       profileService.saveProfile(profile.copy(home = name))
-      // NOTE option to send join message here
+      // NOTE option to send home message here
       true
     } else false
   }
