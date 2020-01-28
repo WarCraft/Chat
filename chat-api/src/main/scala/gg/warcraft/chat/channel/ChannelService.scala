@@ -34,8 +34,8 @@ class ChannelService(
     (config.globalChannels ++ config.localChannels).foreach(channel => {
       newChannels.addOne(channel)
       newChannelsByName.put(channel.name, channel)
-      channel.aliases.foreach(newChannelsByAlias.put(_, channel))
-      channel.shortcut.map(newChannelsByShortcut.put(_, channel))
+      channel.aliases.foreach(it => newChannelsByAlias.put(it.toLowerCase, channel))
+      channel.shortcut.map(it => newChannelsByShortcut.put(it.toLowerCase, channel))
     })
 
     // only after successfully setting the default channel using the
