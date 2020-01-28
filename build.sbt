@@ -24,9 +24,9 @@ lazy val commonDependencies = Seq(
   "org.scalatest" %% "scalatest" % "3.0.8" % Test
 )
 
-lazy val chat = (project in file("chat"))
+lazy val api = (project in file("chat-api"))
   .settings(
-    name := "chat",
+    name := "chat-api",
     commonSettings,
     libraryDependencies ++= commonDependencies
   )
@@ -44,4 +44,4 @@ lazy val spigot = (project in file("chat-spigot"))
       "com.destroystokyo.paper" % "paper-api" % "1.15.1-R0.1-SNAPSHOT" % Provided
     )
   )
-  .dependsOn(chat)
+  .dependsOn(api)
