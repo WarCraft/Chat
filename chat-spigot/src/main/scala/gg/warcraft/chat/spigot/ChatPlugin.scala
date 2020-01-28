@@ -14,10 +14,9 @@ import org.bukkit.plugin.java.JavaPlugin
 class ChatPlugin extends JavaPlugin {
   override def onLoad(): Unit = saveDefaultConfig()
 
-  override def onEnable(): Unit = {
-    val config = yamlMapper.readValue(getConfig.toString, classOf[ChatConfig])
-    init(config)
-  }
+  override def onEnable(): Unit = init(
+    yamlMapper.readValue(getConfig.toString, classOf[ChatConfig])
+  )
 
   private def init(
       config: ChatConfig
