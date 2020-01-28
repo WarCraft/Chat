@@ -34,7 +34,6 @@ class ChannelService(
     (config.globalChannels ++ config.localChannels).foreach(channel => {
       newChannels.addOne(channel)
       newChannelsByName.put(channel.name, channel)
-      newChannelsByAlias.put(channel.name.toLowerCase, channel)
       channel.aliases.foreach(newChannelsByAlias.put(_, channel))
       channel.shortcut.map(newChannelsByShortcut.put(_, channel))
     })

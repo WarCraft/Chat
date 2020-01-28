@@ -2,7 +2,7 @@ defaultChannel: Global
 
 globalChannels:
   - name: Global
-    aliases: []
+    aliases: [global]
     shortcut:
     color: GRAY
     formatString: "[<channel.name>] <sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
@@ -10,7 +10,7 @@ globalChannels:
 
 localChannels:
   - name: Local
-    aliases: [say, s, rp]
+    aliases: [local, say, s]
     shortcut: "(("
     color: WHITE
     formatString: "<sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
