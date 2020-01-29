@@ -1,4 +1,5 @@
 defaultChannel: Global
+defaultTag: ""
 
 globalChannels:
   - name: Global
