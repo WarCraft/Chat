@@ -41,7 +41,7 @@ lazy val spigot = (project in file("chat-spigot"))
     ),
     libraryDependencies ++= commonDependencies ++ Seq(
       "gg.warcraft" %% "monolith-spigot" % "15.0.0-SNAPSHOT" % Provided,
-      "com.destroystokyo.paper" % "paper-api" % "1.15.1-R0.1-SNAPSHOT" % Provided
+      "com.destroystokyo.paper" % "paper-api" % "1.15.2-R0.1-SNAPSHOT" % Provided
     )
   )
   .dependsOn(api)
