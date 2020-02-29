@@ -6,6 +6,8 @@ import gg.warcraft.chat.message.{Message, MessageAdapter}
 import gg.warcraft.monolith.api.core.AuthorizationService
 import org.bukkit.Server
 
+import scala.jdk.CollectionConverters._
+
 class SpigotMessageAdapter(
     private implicit val server: Server,
     private implicit val authService: AuthorizationService
@@ -14,9 +16,9 @@ class SpigotMessageAdapter(
     server.getOnlinePlayers.forEach(_.sendMessage(message.formatted))
 
   override def broadcastStaff(message: Message): Unit =
-    server.getOnlinePlayers.stream
+    server.getOnlinePlayers.asScala
       .filter(it => authService.isStaff(it.getUniqueId))
-      .forEach(_.sendMessage(message.formatted))
+      .foreach(_.sendMessage(message.formatted))
 
   override def send(message: Message, playerId: UUID): Unit = {
     val player = server.getPlayer(playerId)
