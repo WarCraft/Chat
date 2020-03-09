@@ -3,7 +3,7 @@ lazy val commonSettings = Seq(
   version := "15.0.0-SNAPSHOT",
   scalaVersion := "2.13.1",
   scalacOptions ++= Seq(
-    // additional scalac options go here
+    "-language:implicitConversions"
   ),
   resolvers ++= Seq(
     Resolver.mavenLocal
