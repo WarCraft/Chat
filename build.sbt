@@ -21,6 +21,8 @@ lazy val assemblySettings = Seq(
 
 lazy val commonDependencies = Seq(
   "gg.warcraft" %% "monolith-api" % "15.0.0-SNAPSHOT",
+  "com.typesafe.akka" %% "akka-actor-typed" % "2.6.3",
+  "com.typesafe.akka" %% "akka-persistence-typed" % "2.6.3",
   "org.scalatest" %% "scalatest" % "3.0.8" % Test
 )
 
