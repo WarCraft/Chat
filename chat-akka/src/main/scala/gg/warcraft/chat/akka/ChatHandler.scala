@@ -1,17 +1,16 @@
 package gg.warcraft.chat.akka
 
-import akka.actor.typed.{ActorRef, Behavior, PostStop}
+import akka.actor.typed.{ ActorRef, Behavior, PostStop }
 import akka.actor.typed.scaladsl.Behaviors
-import gg.warcraft.chat.AsyncPlayerPreChatEvent
-import gg.warcraft.monolith.api.core.command.{Command, CommandPreExecuteEvent}
-import gg.warcraft.monolith.api.core.event.{EventHandler, EventService, PreEvent}
+import gg.warcraft.monolith.api.core.command.{ Command, CommandPreExecuteEvent }
+import gg.warcraft.monolith.api.core.event.{ EventHandler, EventService, PreEvent }
 
 private[this] class ChatEventHandler(
     service: ActorRef[ChatService.Command]
 ) extends EventHandler {
   override def reduce[T <: PreEvent](event: T): T = {
     case event: AsyncPlayerPreChatEvent =>
-      import event._
+
       service ! ChatService.RouteMessage(null, text) // TODO add player
       event.copy(cancelled = true).asInstanceOf[T]
 
