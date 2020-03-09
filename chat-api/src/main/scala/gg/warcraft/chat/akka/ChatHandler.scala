@@ -1,49 +1,23 @@
 package gg.warcraft.chat.akka
 
-import akka.actor.typed.ActorRef
+import akka.actor.typed.{ActorRef, Behavior, PostStop}
+import akka.actor.typed.scaladsl.Behaviors
 import gg.warcraft.chat.AsyncPlayerPreChatEvent
-import gg.warcraft.chat.ChatService.handlers
-import gg.warcraft.monolith.api.core.command.{
-  Command, CommandPreExecuteEvent, CommandSender
-}
-import gg.warcraft.monolith.api.core.event.{EventHandler, PreEvent}
+import gg.warcraft.monolith.api.core.command.{Command, CommandPreExecuteEvent}
+import gg.warcraft.monolith.api.core.event.{EventHandler, EventService, PreEvent}
 
-class ChatHandler(
+private[this] class ChatEventHandler(
     service: ActorRef[ChatService.Command]
 ) extends EventHandler {
-  override def reduce[T <: PreEvent](event: T): T = event match {
-    case AsyncPlayerPreChatEvent(playerId, name, text, _, _) =>
-      handlers.get(playerId) match {
-        case Some(handler) =>
-          // run on next sync tick as chat events are async
-          taskService.runNextTick(() => {
-            if (handler.handle(playerId, text)) handlers.subtractOne(playerId)
-          })
-
-        case None =>
-          var trimmedText = text
-          val channel = channelsByShortcut.find(it => text.startsWith(it._1)) match {
-            case Some((_, channel)) =>
-              trimmedText = text.substring(channel.shortcut.get.length).trim
-              channel
-
-            case None =>
-              channelsByName.getOrElse(
-                profiles(playerId).home,
-                defaultChannel
-              )
-          }
-
-          val command = channel.name.toLowerCase
-          channel.handle(
-            CommandSender(name, Some(playerId)),
-            Command(command, command, text.split(" "))
-          )
-      }
-
+  override def reduce[T <: PreEvent](event: T): T = {
+    case event: AsyncPlayerPreChatEvent =>
+      import event._
+      service ! ChatService.RouteMessage(null, text) // TODO add player
       event.copy(cancelled = true).asInstanceOf[T]
 
-    case CommandPreExecuteEvent(sender, cmd, label, args, _, _)  =>
+    case event: CommandPreExecuteEvent =>
+      import event._
+      service ! ChatService.RouteMessage(null, args.mkString(" "), Some(label))
       channelService.channelsByAlias.get(label) match {
         case Some(channel) =>
           channel.handle(sender, Command(cmd, label, args))
@@ -52,6 +26,23 @@ class ChatHandler(
         case None => event
       }
 
-    case _                           => event
+    case _ => event
+  }
+}
+
+object ChatHandler {
+  def apply(service: ActorRef[ChatService.Command])(
+      implicit eventService: EventService
+  ): Behavior[Unit] = {
+    val eventHandler = new ChatEventHandler(service)
+    eventService subscribe eventHandler
+
+    Behaviors.receiveSignal {
+      case (_, PostStop) =>
+        eventService unsubscribe eventHandler
+        Behaviors.stopped
+
+      case _ => Behaviors.same
+    }
   }
 }

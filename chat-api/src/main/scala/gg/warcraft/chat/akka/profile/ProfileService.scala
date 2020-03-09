@@ -4,10 +4,8 @@ import java.util.UUID
 
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
-import gg.warcraft.chat.akka.DatabaseConfig
-import io.getquill.{SnakeCase, SqliteJdbcContext}
-
-import scala.concurrent.ExecutionContext
+import gg.warcraft.monolith.api.core.event.EventService
+import io.getquill.context.jdbc.JdbcContext
 
 object ProfileService {
   sealed trait Command
@@ -42,12 +40,12 @@ object ProfileService {
       defaultTag: String,
       defaultChannel: String
   )(
-      implicit config: DatabaseConfig,
-      execution: ExecutionContext = ExecutionContext.global
-  ): Behavior[Command] = {
-    val database = new SqliteJdbcContext(SnakeCase, config);
-    import database._
+      implicit database: JdbcContext[_, _],
+      eventService: EventService
+  ): Behavior[Command] = Behaviors.setup { context =>
+    context.spawn(ProfileHandler(context.self), "handler")
 
+    import database._
     def ProfileService(profiles: Map[UUID, Profile]): Behavior[Command] =
       Behaviors.receive { (context, message) =>
         message match {
