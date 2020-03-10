@@ -2,49 +2,46 @@ package gg.warcraft.chat.profile
 
 import java.util.UUID
 
-import com.typesafe.config.Config
 import gg.warcraft.chat.ChatConfig
 import gg.warcraft.chat.channel.ChannelService
-import gg.warcraft.monolith.api.core.Repository
 import gg.warcraft.monolith.api.core.event.{Event, EventHandler}
 import gg.warcraft.monolith.api.player.PlayerPreConnectEvent
+import io.getquill.context.jdbc.JdbcContext
 
-import scala.collection.mutable
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 object ChatProfileService {
-  private val _profiles = mutable.Map[UUID, ChatProfile]()
-
-  private var _defaultTag: String = _
+  private var _defaultTag: String = ""
+  private var _profiles: Map[UUID, ChatProfile] = Map.empty
 }
 
 class ChatProfileService(
-    private implicit val channelService: ChannelService,
-    override protected implicit val dbConfig: Config
-) extends EventHandler
-    with Repository {
+    private implicit val database: JdbcContext[_, _],
+    private implicit val context: ExecutionContext,
+    private implicit val channelService: ChannelService
+) extends EventHandler {
   import ChatProfileService._
   import channelService.{channelsByName, defaultChannel}
-  import db._
+  import database._
 
-  def profiles: Map[UUID, ChatProfile] = _profiles.toMap
   def defaultTag: String = _defaultTag
+  def profiles: Map[UUID, ChatProfile] = _profiles
 
-  def readConfig(config: ChatConfig): Unit = {
+  def readConfig(config: ChatConfig): Unit =
     _defaultTag = config.defaultTag
-  }
 
   def loadProfile(playerId: UUID): Option[ChatProfile] = {
-    val profile = db
-      .run(query[ChatProfile].filter(_.playerId == lift(playerId)))
-      .headOption
-    if (profile.isDefined) _profiles.put(playerId, profile.get)
-    profile
+    database
+      .run(query[ChatProfile] filter (_.playerId == lift(playerId)))
+      .headOption match {
+      case Some(profile) => _profiles += (playerId -> profile); Some(profile)
+      case None          => None
+    }
   }
 
-  def saveProfile(profile: ChatProfile): Option[ChatProfile] = {
-    Future { db.run(query[ChatProfile].insert(lift(profile))) }
-    _profiles.put(profile.playerId, profile)
+  def saveProfile(profile: ChatProfile): Unit = {
+    Future { database.run(query[ChatProfile] insert lift(profile)) }
+    _profiles += (profile.playerId -> profile)
   }
 
   override def handle(event: Event): Unit = event match {
@@ -55,7 +52,7 @@ class ChatProfileService(
   private def handle(event: PlayerPreConnectEvent): Unit = {
     import event.{name, playerId}
 
-    profiles.get(playerId).orElse(loadProfile(playerId)) match {
+    _profiles.get(playerId).orElse(loadProfile(playerId)) match {
       case Some(profile) =>
         var dirty = false
 
