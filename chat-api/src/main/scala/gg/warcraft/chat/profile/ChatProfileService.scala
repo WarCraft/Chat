@@ -11,8 +11,8 @@ import io.getquill.context.jdbc.JdbcContext
 import scala.concurrent.{ExecutionContext, Future}
 
 object ChatProfileService {
-  private var _defaultTag: String = ""
-  private var _profiles: Map[UUID, ChatProfile] = Map.empty
+  private var _defaultTag: String = _
+  private var _profiles = Map[UUID, ChatProfile]()
 }
 
 class ChatProfileService(

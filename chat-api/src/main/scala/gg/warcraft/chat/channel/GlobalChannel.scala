@@ -1,6 +1,7 @@
 package gg.warcraft.chat.channel
 
 import java.util.UUID
+import java.util.logging.Logger
 
 import gg.warcraft.chat.message.{Message, MessageAdapter}
 import gg.warcraft.chat.profile.ChatProfileService
@@ -13,8 +14,6 @@ import gg.warcraft.monolith.api.player.{
 }
 import gg.warcraft.monolith.api.util.ColorCode
 
-import scala.collection.mutable
-
 case class GlobalChannel(
     name: String,
     aliases: Set[String],
@@ -23,9 +22,10 @@ case class GlobalChannel(
     format: String,
     permission: Option[String]
 )(
-    private implicit val playerService: PlayerQueryService,
-    override protected implicit val profileService: ChatProfileService,
-    override protected implicit val messageAdapter: MessageAdapter
+    implicit logger: Logger,
+    playerService: PlayerQueryService,
+    profileService: ChatProfileService,
+    messageAdapter: MessageAdapter
 ) extends Channel
     with EventHandler {
   private final val missingPermissions =
@@ -35,90 +35,80 @@ case class GlobalChannel(
   private final val homeChannelPlayersOnly =
     "Only players can set their home channel."
 
-  private val recipients = mutable.ListBuffer[UUID]()
+  private var recipients = Set[UUID]()
 
   override def handle(sender: CommandSender, cmd: Command): Boolean = sender match {
     case CommandSender(_, Some(playerId)) =>
-      val joined = if (!recipients.contains(playerId)) {
+      def fixMissing(): Unit = {
+        logger warning s"$playerId was not in $name, but channel has no permission!"
+        recipients += playerId
+        val message = Message.server(successfullyJoined.format(name))
+        messageAdapter.send(message, playerId)
+      }
+
+      val authenticated = if (!recipients.contains(playerId)) {
         permission match {
           case Some(permission) =>
             val player: Player = playerService.getPlayer(playerId)
             if (player.hasPermission(permission)) {
-              recipients.addOne(playerId)
-              val message = Message.server(successfullyJoined.format(name))
-              messageAdapter.send(message, playerId)
-              true
+              fixMissing(); true
             } else {
               val message = Message.server(missingPermissions.format(name))
-              messageAdapter.send(message, playerId)
-              false
+              messageAdapter.send(message, playerId); false
             }
 
-          case _ =>
-            recipients.addOne(playerId)
-            val message = Message.server(successfullyJoined.format(name))
-            messageAdapter.send(message, playerId)
-            true
+          case _ => fixMissing(); true
         }
       } else true
 
-      if (joined) {
+      if (authenticated) {
         if (cmd.args.isEmpty) makeHome(playerId)
         else broadcast(sender, cmd.args.mkString(" "), recipients)
       }
-
-      true
+      Command.success
 
     case _ =>
-      if (cmd.args.isEmpty) println(homeChannelPlayersOnly)
+      if (cmd.args.isEmpty) logger info homeChannelPlayersOnly
       else broadcast(sender, cmd.args.mkString(" "), recipients)
-      true
+      Command.success
   }
 
   override def handle(event: Event): Unit = event match {
     case it: PlayerConnectEvent            => handle(it)
     case it: PlayerPermissionsChangedEvent => handle(it)
     case it: PlayerDisconnectEvent         => handle(it)
-    case _                                 => ()
+    case _                                 =>
   }
 
   private def handle(event: PlayerConnectEvent): Unit = {
     import event.playerId
-
     permission match {
       case Some(permission) =>
         val player: Player = playerService.getPlayer(playerId)
-        if (player.hasPermission(permission)) recipients.addOne(playerId)
-
-      case None => recipients.addOne(playerId)
+        if (player.hasPermission(permission)) recipients += playerId
+      case None => recipients += playerId
     }
   }
 
   private def handle(event: PlayerPermissionsChangedEvent): Unit = {
     import event.playerId
-
     permission match {
       case Some(permission) =>
         val player: Player = playerService.getPlayer(playerId)
         if (recipients.contains(playerId)) {
-          if (!player.hasPermission(permission)) recipients.subtractOne(playerId)
-        } else {
-          if (player.hasPermission(permission)) recipients.addOne(playerId)
-        }
-
-      case None => ()
+          if (!player.hasPermission(permission)) recipients -= playerId
+        } else if (player.hasPermission(permission)) recipients += playerId
+      case None =>
     }
   }
 
   private def handle(event: PlayerDisconnectEvent): Unit = {
     import event.playerId
-
     permission match {
       case Some(permission) =>
         val player: Player = playerService.getPlayer(playerId)
-        if (player.hasPermission(permission)) recipients.subtractOne(playerId)
-
-      case None => recipients.subtractOne(playerId)
+        if (player.hasPermission(permission)) recipients -= playerId
+      case None => recipients -= playerId
     }
   }
 }

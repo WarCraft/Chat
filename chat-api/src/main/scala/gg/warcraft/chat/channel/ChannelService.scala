@@ -13,9 +13,7 @@ object ChannelService {
   private var _defaultChannel: Channel = _
 }
 
-class ChannelService(
-    private implicit val eventService: EventService
-) {
+class ChannelService(implicit eventService: EventService) {
   import ChannelService._
 
   def channels: List[Channel] = _channels
@@ -41,7 +39,7 @@ class ChannelService(
     // volatile accessor do we overwrite the active channel collections
     _defaultChannel = _channelsByName(config.defaultChannel)
 
-    _channels.foreach {
+    _channels foreach {
       case it: GlobalChannel => eventService unsubscribe it
       case _                 =>
     }
@@ -51,6 +49,9 @@ class ChannelService(
     _channelsByAlias = channelsByAlias.toMap
     _channelsByShortcut = channelsByShortcut.toMap
 
-    config.globalChannels foreach eventService.subscribe
+    _channels foreach {
+      case it: GlobalChannel => eventService subscribe it
+      case _                 =>
+    }
   }
 }

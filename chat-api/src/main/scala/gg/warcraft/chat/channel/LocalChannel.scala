@@ -1,5 +1,7 @@
 package gg.warcraft.chat.channel
 
+import java.util.logging.Logger
+
 import gg.warcraft.chat.message.MessageAdapter
 import gg.warcraft.chat.profile.ChatProfileService
 import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
@@ -18,10 +20,11 @@ case class LocalChannel(
     format: String,
     radius: Float
 )(
-    private implicit val entityService: EntityQueryService,
-    private implicit val playerService: PlayerQueryService,
-    override protected implicit val profileService: ChatProfileService,
-    override protected implicit val messageAdapter: MessageAdapter
+    implicit logger: Logger,
+    entityService: EntityQueryService,
+    playerService: PlayerQueryService,
+    profileService: ChatProfileService,
+    messageAdapter: MessageAdapter
 ) extends Channel {
   private final val localChannelPlayersOnly =
     "Only players can talk in local chat channels."
@@ -34,14 +37,14 @@ case class LocalChannel(
         val recipients = entityService
           .getNearbyEntities(player.getLocation, radius)
           .asScala
-          .filter(_.isInstanceOf[Player])
-          .map(_.getId)
+          .filter { _.isInstanceOf[Player] }
+          .map { _.getId }
         broadcast(sender, cmd.args.mkString(" "), recipients)
       }
-      true
+      Command.success
 
     case _ =>
-      println(localChannelPlayersOnly)
-      true
+      logger warning localChannelPlayersOnly
+      Command.success
   }
 }
