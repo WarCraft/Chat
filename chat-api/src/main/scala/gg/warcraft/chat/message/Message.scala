@@ -16,7 +16,7 @@ object Message {
     channel,
     Some(sender),
     text,
-    channel.color + channel.formatString
+    channel.color + channel.format
       .replaceAll("<channel\\.name>", channel.name)
       .replaceAll("<channel\\.color>", channel.color.toString)
       .replaceAll("<sender\\.name>", sender.name)

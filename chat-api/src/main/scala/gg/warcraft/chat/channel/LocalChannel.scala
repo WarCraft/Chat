@@ -15,7 +15,7 @@ case class LocalChannel(
     aliases: Set[String],
     shortcut: Option[String],
     color: ColorCode,
-    formatString: String,
+    format: String,
     radius: Float
 )(
     private implicit val entityService: EntityQueryService,

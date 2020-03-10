@@ -20,7 +20,7 @@ case class GlobalChannel(
     aliases: Set[String],
     shortcut: Option[String],
     color: ColorCode,
-    formatString: String,
+    format: String,
     permission: Option[String]
 )(
     private implicit val playerService: PlayerQueryService,

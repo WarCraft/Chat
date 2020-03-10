@@ -6,7 +6,7 @@ globalChannels:
     aliases: [global]
     shortcut:
     color: GRAY
-    formatString: "[<channel.name>] <sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
+    format: "[<channel.name>] <sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
     permission:
 
 localChannels:
@@ -14,5 +14,5 @@ localChannels:
     aliases: [local, say, s]
     shortcut: "(("
     color: WHITE
-    formatString: "<sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
+    format: "<sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
     radius: 30

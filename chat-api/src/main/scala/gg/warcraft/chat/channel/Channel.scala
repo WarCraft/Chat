@@ -12,7 +12,7 @@ trait Channel extends CommandHandler {
   val aliases: Set[String]
   val shortcut: Option[String]
   val color: ColorCode
-  val formatString: String
+  val format: String
 
   protected implicit val messageAdapter: MessageAdapter
   protected implicit val profileService: ChatProfileService
