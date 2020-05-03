@@ -2,9 +2,9 @@ package gg.warcraft.chat.profile
 
 import java.util.UUID
 
-case class ChatProfile(
-    name: String,
+case class Profile(
     playerId: UUID,
+    name: String,
     tag: String,
     home: String
 )

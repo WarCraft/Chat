@@ -3,30 +3,24 @@ package gg.warcraft.chat
 import java.util.UUID
 
 import gg.warcraft.chat.channel.ChannelService
-import gg.warcraft.chat.profile.ChatProfileService
-import gg.warcraft.monolith.api.core.TaskService
-import gg.warcraft.monolith.api.core.command.{
-  Command, CommandPreExecuteEvent, CommandSender
-}
-import gg.warcraft.monolith.api.core.event.{EventHandler, PreEvent}
-
-import scala.collection.mutable
-
-object ChatService {
-  private val handlers = mutable.Map[UUID, ChatHandler]()
-}
+import gg.warcraft.chat.profile.ProfileService
+import gg.warcraft.monolith.api.core.command.{ Command, CommandPreExecuteEvent }
+import gg.warcraft.monolith.api.core.event.{ Event, PreEvent }
+import gg.warcraft.monolith.api.core.task.{ Task, TaskService }
+import gg.warcraft.monolith.api.util.Ops._
 
 class ChatService(
-    private implicit val taskService: TaskService,
-    private implicit val channelService: ChannelService,
-    private implicit val profileService: ChatProfileService
-) extends EventHandler {
-  import ChatService.handlers
+    implicit taskService: TaskService,
+    channelService: ChannelService,
+    profileService: ProfileService
+) extends Event.Handler {
   import channelService.{channelsByName, channelsByShortcut, defaultChannel}
   import profileService.profiles
 
+  private var handlers: Map[UUID, ChatHandler] = Map.empty
+
   def register(handler: ChatHandler, playerId: UUID): Unit =
-    handlers.put(playerId, handler)
+    handlers += (playerId -> handler)
 
   override def reduce[T <: PreEvent](event: T): T = event match {
     case it: AsyncPlayerPreChatEvent => reduce(it).asInstanceOf[T]
@@ -40,28 +34,28 @@ class ChatService(
     handlers.get(playerId) match {
       case Some(handler) =>
         // run on next sync tick as chat events are async
-        taskService.runNextTick(() => {
-          if (handler.handle(playerId, text)) handlers.subtractOne(playerId)
-        })
+        taskService.evalNextTick {
+          if (handler.handle(playerId, text)) handlers -= playerId
+        }
 
       case None =>
         var trimmedText = text
-        val channel = channelsByShortcut.find(it => text.startsWith(it._1)) match {
+        val channel = channelsByShortcut.find(_._1 |> text.startsWith) match {
           case Some((_, channel)) =>
             trimmedText = text.substring(channel.shortcut.get.length).trim
             channel
 
           case None =>
-            channelsByName.getOrElse(
-              profiles(playerId).home,
-              defaultChannel
-            )
+            val homeChannel = profiles(playerId).home
+            channelsByName.getOrElse(homeChannel, defaultChannel)
         }
 
         val command = channel.name.toLowerCase
         channel.handle(
+          // TODO send player object (principal) with pre chat event
           CommandSender(name, Some(playerId)),
-          Command(command, command, text.split(" "))
+          Command(command, command, trimmedText)
+
         )
     }
 
@@ -69,13 +63,11 @@ class ChatService(
   }
 
   private def reduce(event: CommandPreExecuteEvent): CommandPreExecuteEvent = {
-    import event.{args, cmd, label, sender}
-
-    channelService.channelsByAlias.get(label) match {
+    import event.{args, command, principal}
+    channelService.channelsByAlias.get(command.name.toLowerCase) match {
       case Some(channel) =>
-        channel.handle(sender, Command(cmd, label, args))
+        channel.handle(principal, command, args: _*)
         event.copy(cancelled = true)
-
       case None => event
     }
   }
