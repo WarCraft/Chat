@@ -22,10 +22,10 @@ case class GlobalChannel(
     format: String,
     permission: Option[String]
 )(implicit
-  logger: Logger,
-  playerService: PlayerService,
-  profileService: ProfileService,
-  messageAdapter: MessageAdapter
+    logger: Logger,
+    playerService: PlayerService,
+    profileService: ProfileService,
+    messageAdapter: MessageAdapter
 ) extends Channel
     with Event.Handler {
   private final val missingPermissions =

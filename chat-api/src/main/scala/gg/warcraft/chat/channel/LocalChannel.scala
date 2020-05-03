@@ -18,11 +18,11 @@ case class LocalChannel(
     format: String,
     radius: Float
 )(implicit
-  logger: Logger,
-  entityService: EntityService,
-  playerService: PlayerService,
-  profileService: ProfileService,
-  messageAdapter: MessageAdapter
+    logger: Logger,
+    entityService: EntityService,
+    playerService: PlayerService,
+    profileService: ProfileService,
+    messageAdapter: MessageAdapter
 ) extends Channel {
   override def handle(
       sender: Principal,
