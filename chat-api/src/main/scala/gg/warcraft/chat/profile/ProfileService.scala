@@ -12,18 +12,18 @@ import io.getquill.context.jdbc.JdbcContext
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining._
 
-class ProfileService(
-    private implicit val database: JdbcContext[_, _],
-    private implicit val context: ExecutionContext,
-    private implicit val channelService: ChannelService
+class ProfileService(implicit
+    database: JdbcContext[_, _],
+    context: ExecutionContext,
+    channelService: ChannelService
 ) extends Event.Handler {
   import channelService.{channelsByName, defaultChannel}
   import database._
 
   private var _defaultTag: String = _
-  def defaultTag: String = _defaultTag
-
   private var _profiles: Map[UUID, Profile] = Map.empty
+
+  def defaultTag: String = _defaultTag
   def profiles: Map[UUID, Profile] = _profiles
 
   def readConfig(config: ChatConfig): Unit =
@@ -38,26 +38,19 @@ class ProfileService(
     }
 
   def saveProfile(profile: Profile): Unit = {
-    Future { database.run(query[Profile] insert lift(profile)) }
+    Future { database.run { query[Profile].insert(lift(profile)) } }
     _profiles += (profile.playerId -> profile)
   }
 
   private def validateProfile(profile: Profile, playerName: String): Unit = {
-    var dirty = false
-
-    val semiValidProfile =
-      if (profile.name != playerName) {
-        dirty = true
-        profile.copy(name = playerName)
-      } else profile
-
-    val validProfile =
-      if (!channelsByName.contains(profile.home)) {
-        dirty = true
-        semiValidProfile.copy(home = defaultChannel.name)
-      } else semiValidProfile
-
-    if (dirty) saveProfile(validProfile)
+    var validatedProfile = profile
+    validatedProfile =
+      if (profile.name == playerName) validatedProfile
+      else validatedProfile.copy(name = playerName)
+    validatedProfile =
+      if (channelsByName.contains(profile.home)) validatedProfile
+      else validatedProfile.copy(home = defaultChannel.name)
+    if (validatedProfile != profile) saveProfile(validatedProfile)
   }
 
   override def handle(event: Event): Unit = event match {
