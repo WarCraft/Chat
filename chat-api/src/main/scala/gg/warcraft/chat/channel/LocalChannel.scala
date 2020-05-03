@@ -3,48 +3,46 @@ package gg.warcraft.chat.channel
 import java.util.logging.Logger
 
 import gg.warcraft.chat.message.MessageAdapter
-import gg.warcraft.chat.profile.ChatProfileService
-import gg.warcraft.monolith.api.core.command.{Command, CommandSender}
-import gg.warcraft.monolith.api.entity.player.Player
-import gg.warcraft.monolith.api.entity.player.service.PlayerQueryService
-import gg.warcraft.monolith.api.entity.service.EntityQueryService
-import gg.warcraft.monolith.api.util.ColorCode
-
-import scala.jdk.CollectionConverters._
+import gg.warcraft.chat.profile.ProfileService
+import gg.warcraft.monolith.api.core.auth.Principal
+import gg.warcraft.monolith.api.core.command.Command
+import gg.warcraft.monolith.api.core.ColorCode
+import gg.warcraft.monolith.api.entity.EntityService
+import gg.warcraft.monolith.api.player.{Player, PlayerService}
 
 case class LocalChannel(
     name: String,
     aliases: Set[String],
     shortcut: Option[String],
-    color: ColorCode,
+    color: ColorCode.Type,
     format: String,
     radius: Float
-)(
-    implicit logger: Logger,
-    entityService: EntityQueryService,
-    playerService: PlayerQueryService,
-    profileService: ChatProfileService,
-    messageAdapter: MessageAdapter
+)(implicit
+  logger: Logger,
+  entityService: EntityService,
+  playerService: PlayerService,
+  profileService: ProfileService,
+  messageAdapter: MessageAdapter
 ) extends Channel {
-  private final val localChannelPlayersOnly =
-    "Only players can talk in local chat channels."
-
-  override def handle(sender: CommandSender, cmd: Command): Boolean = sender match {
-    case CommandSender(_, Some(playerId)) =>
-      if (cmd.args.isEmpty) makeHome(playerId)
-      else {
+  override def handle(
+      sender: Principal,
+      command: Command,
+      args: String*
+  ): Command.Result = sender.principalId match {
+    case Some(playerId) =>
+      if (args.isEmpty) {
+        makeHome(playerId)
+        Command.success
+      } else {
         val player = playerService.getPlayer(playerId)
         val recipients = entityService
-          .getNearbyEntities(player.getLocation, radius)
-          .asScala
+          .getNearbyEntities(player.location, radius)
           .filter { _.isInstanceOf[Player] }
-          .map { _.getId }
-        broadcast(sender, cmd.args.mkString(" "), recipients)
+          .map { _.id }
+        broadcast(sender, args.mkString(" "), recipients)
+        Command.success
       }
-      Command.success
 
-    case _ =>
-      logger warning localChannelPlayersOnly
-      Command.success
+    case _ => Command.playersOnly
   }
 }

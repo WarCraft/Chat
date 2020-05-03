@@ -5,16 +5,12 @@ import gg.warcraft.monolith.api.core.event.EventService
 
 import scala.collection.mutable
 
-object ChannelService {
-  private var _channels = List[Channel]()
-  private var _channelsByName = Map[String, Channel]()
-  private var _channelsByAlias = Map[String, Channel]()
-  private var _channelsByShortcut = Map[String, Channel]()
-  private var _defaultChannel: Channel = _
-}
-
 class ChannelService(implicit eventService: EventService) {
-  import ChannelService._
+  private var _channels: List[Channel] = Nil
+  private var _channelsByName: Map[String, Channel] = Map.empty
+  private var _channelsByAlias: Map[String, Channel] = Map.empty
+  private var _channelsByShortcut: Map[String, Channel] = Map.empty
+  private var _defaultChannel: Channel = _
 
   def channels: List[Channel] = _channels
   def channelsByName: Map[String, Channel] = _channelsByName
@@ -35,12 +31,12 @@ class ChannelService(implicit eventService: EventService) {
       channel.shortcut map (it => channelsByShortcut += (it.toLowerCase -> channel))
     }
 
-    // only after successfully setting the default channel using the
-    // volatile accessor do we overwrite the active channel collections
+    // only after successfully setting the default channel using a
+    // volatile get do we overwrite the active channel collections
     _defaultChannel = _channelsByName(config.defaultChannel)
 
     _channels foreach {
-      case it: GlobalChannel => eventService unsubscribe it
+      case it: GlobalChannel => eventService.unsubscribe(it)
       case _                 =>
     }
 
@@ -50,7 +46,7 @@ class ChannelService(implicit eventService: EventService) {
     _channelsByShortcut = channelsByShortcut.toMap
 
     _channels foreach {
-      case it: GlobalChannel => eventService subscribe it
+      case it: GlobalChannel => eventService.subscribe(it)
       case _                 =>
     }
   }

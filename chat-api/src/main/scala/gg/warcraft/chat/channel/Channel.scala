@@ -2,49 +2,53 @@ package gg.warcraft.chat.channel
 
 import java.util.UUID
 
-import gg.warcraft.chat.message.{Message, MessageAdapter}
-import gg.warcraft.chat.profile.ChatProfileService
-import gg.warcraft.monolith.api.core.command.{CommandHandler, CommandSender}
-import gg.warcraft.monolith.api.util.ColorCode
+import gg.warcraft.chat.message.{ChatMessage, MessageAdapter}
+import gg.warcraft.chat.profile.ProfileService
+import gg.warcraft.monolith.api.core.{ColorCode, Message}
+import gg.warcraft.monolith.api.core.auth.Principal
+import gg.warcraft.monolith.api.core.command.Command
+import gg.warcraft.monolith.api.util.Ops._
 
-trait Channel extends CommandHandler {
+trait Channel extends Command.Handler {
+  private final val homeMessage = ChatMessage.home(this)
+
   val name: String
   val aliases: Set[String]
   val shortcut: Option[String]
-  val color: ColorCode
+  val color: ColorCode.Type
   val format: String
 
   def broadcast(
-      sender: CommandSender,
+      sender: Principal,
       text: String,
       recipients: Iterable[UUID]
-  )(
-      implicit profileService: ChatProfileService,
-      messageAdapter: MessageAdapter
+  )(implicit
+    profileService: ProfileService,
+    messageAdapter: MessageAdapter
   ): Unit = {
-    val message = sender match {
-      case CommandSender(_, Some(playerId)) =>
+    val message = sender.principalId match {
+      case Some(playerId) =>
         val profile = profileService.profiles(playerId)
-        Message(this, profile, text)
+        ChatMessage(this, profile, text)
       case _ => Message.server(text)
     }
 
-    recipients foreach { messageAdapter send (message, _) }
-    if (recipients.size == 1 && sender.isPlayer) {
-      messageAdapter send (Message.mute, sender.playerId.get)
-    }
+    recipients.foreach { messageAdapter.send(message, _) }
+    if (recipients.size == 1) sender.sendMessage(ChatMessage.mute)
 
     // NOTE option to log message here
   }
 
-  def makeHome(playerId: UUID)(
-      implicit profileService: ChatProfileService
-  ): Boolean = {
+  def makeHome(
+      playerId: UUID
+  )(implicit
+    profileService: ProfileService,
+    messageAdapter: MessageAdapter
+  ): Unit = {
     val profile = profileService.profiles(playerId)
     if (profile.home != name) {
-      profileService saveProfile profile.copy(home = name)
-      // NOTE option to send home message here
-      true
-    } else false
+      profile.copy(home = name) |> profileService.saveProfile
+      messageAdapter.send(homeMessage, playerId)
+    }
   }
 }
