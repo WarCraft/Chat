@@ -4,13 +4,13 @@ import java.util.UUID
 
 import gg.warcraft.chat.channel.ChannelService
 import gg.warcraft.chat.profile.ProfileService
-import gg.warcraft.monolith.api.core.command.{ Command, CommandPreExecuteEvent }
-import gg.warcraft.monolith.api.core.event.{ Event, PreEvent }
-import gg.warcraft.monolith.api.core.task.{ Task, TaskService }
+import gg.warcraft.monolith.api.core.command.CommandPreExecuteEvent
+import gg.warcraft.monolith.api.core.event.{Event, PreEvent}
+import gg.warcraft.monolith.api.core.task.TaskService
 import gg.warcraft.monolith.api.util.Ops._
 
-class ChatService(
-    implicit taskService: TaskService,
+class ChatService(implicit
+    taskService: TaskService,
     channelService: ChannelService,
     profileService: ProfileService
 ) extends Event.Handler {
@@ -29,13 +29,12 @@ class ChatService(
   }
 
   private def reduce(event: AsyncPlayerPreChatEvent): AsyncPlayerPreChatEvent = {
-    import event.{name, playerId, text}
-
-    handlers.get(playerId) match {
+    import event.{player, text}
+    handlers.get(player.id) match {
       case Some(handler) =>
         // run on next sync tick as chat events are async
         taskService.evalNextTick {
-          if (handler.handle(playerId, text)) handlers -= playerId
+          if (handler.handle(player.id, text)) handlers -= player.id
         }
 
       case None =>
@@ -44,21 +43,12 @@ class ChatService(
           case Some((_, channel)) =>
             trimmedText = text.substring(channel.shortcut.get.length).trim
             channel
-
           case None =>
-            val homeChannel = profiles(playerId).home
+            val homeChannel = profiles(player.id).home
             channelsByName.getOrElse(homeChannel, defaultChannel)
         }
-
-        val command = channel.name.toLowerCase
-        channel.handle(
-          // TODO send player object (principal) with pre chat event
-          CommandSender(name, Some(playerId)),
-          Command(command, command, trimmedText)
-
-        )
+        channel.handle(player, channel.command, text)
     }
-
     event.copy(cancelled = true)
   }
 

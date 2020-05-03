@@ -18,13 +18,15 @@ trait Channel extends Command.Handler {
   val color: ColorCode.Type
   val format: String
 
+  val command: Command = Command(name, aliases.toList, "")
+
   def broadcast(
       sender: Principal,
       text: String,
       recipients: Iterable[UUID]
   )(implicit
-    profileService: ProfileService,
-    messageAdapter: MessageAdapter
+      profileService: ProfileService,
+      messageAdapter: MessageAdapter
   ): Unit = {
     val message = sender.principalId match {
       case Some(playerId) =>
@@ -42,8 +44,8 @@ trait Channel extends Command.Handler {
   def makeHome(
       playerId: UUID
   )(implicit
-    profileService: ProfileService,
-    messageAdapter: MessageAdapter
+      profileService: ProfileService,
+      messageAdapter: MessageAdapter
   ): Unit = {
     val profile = profileService.profiles(playerId)
     if (profile.home != name) {
