@@ -14,7 +14,7 @@ case class LocalChannel(
     name: String,
     aliases: Set[String],
     shortcut: Option[String],
-    color: ColorCode.Type,
+    color: ColorCode,
     format: String,
     radius: Float
 )(implicit

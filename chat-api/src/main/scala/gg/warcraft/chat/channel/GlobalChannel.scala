@@ -18,7 +18,7 @@ case class GlobalChannel(
     name: String,
     aliases: Set[String],
     shortcut: Option[String],
-    color: ColorCode.Type,
+    color: ColorCode,
     format: String,
     permission: Option[String]
 )(implicit

@@ -2,8 +2,11 @@ package gg.warcraft.chat.spigot
 
 import gg.warcraft.chat.ChatConfig
 import gg.warcraft.monolith.api.core.Codecs.Circe._
+import gg.warcraft.monolith.api.core.ColorCode
 import gg.warcraft.monolith.spigot.SpigotMonolithPlugin
+import gg.warcraft.monolith.spigot.implicits._
 import io.circe.generic.auto._
+import io.circe.Decoder
 import io.getquill.{SnakeCase, SqliteDialect}
 
 class ChatPlugin extends SpigotMonolithPlugin {
@@ -20,6 +23,8 @@ class ChatPlugin extends SpigotMonolithPlugin {
   }
 
   override def onEnable(): Unit = {
+    implicit val colorDecoder: Decoder[ColorCode] = enumDecoder(ColorCode.valueOf)
+
     // read config
     val config = parseConfig[ChatConfig](getConfig.saveToString)
     channelService.readConfig(config)

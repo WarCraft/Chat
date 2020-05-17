@@ -15,7 +15,7 @@ trait Channel extends Command.Handler {
   val name: String
   val aliases: Set[String]
   val shortcut: Option[String]
-  val color: ColorCode.Type
+  val color: ColorCode
   val format: String
 
   val command: Command = Command(name, aliases.toList, "")
