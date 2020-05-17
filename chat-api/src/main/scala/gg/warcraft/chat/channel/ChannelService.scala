@@ -33,7 +33,7 @@ class ChannelService(implicit eventService: EventService) {
 
     // only after successfully setting the default channel using a
     // volatile get do we overwrite the active channel collections
-    _defaultChannel = _channelsByName(config.defaultChannel)
+    _defaultChannel = channelsByName(config.defaultChannel)
 
     _channels foreach {
       case it: GlobalChannel => eventService.unsubscribe(it)
