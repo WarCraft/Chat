@@ -1,6 +1,7 @@
 package gg.warcraft.chat.spigot
 
 import gg.warcraft.chat.ChatConfig
+import gg.warcraft.chat.profile.ProfileCacheHandler
 import gg.warcraft.monolith.api.core.Codecs.Circe._
 import gg.warcraft.monolith.api.core.ColorCode
 import gg.warcraft.monolith.spigot.SpigotMonolithPlugin
@@ -31,8 +32,8 @@ class ChatPlugin extends SpigotMonolithPlugin {
     profileService.readConfig(config)
 
     // subscribe handlers
-    eventService.subscribe(profileService)
     eventService.subscribe(chatService)
+    eventService.subscribe(new ProfileCacheHandler)
     this.subscribe(chatEventMapper)
   }
 }

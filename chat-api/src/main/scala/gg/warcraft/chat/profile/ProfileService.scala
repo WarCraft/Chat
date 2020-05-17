@@ -4,8 +4,6 @@ import java.util.UUID
 
 import gg.warcraft.chat.ChatConfig
 import gg.warcraft.chat.channel.ChannelService
-import gg.warcraft.monolith.api.core.event.Event
-import gg.warcraft.monolith.api.player.PlayerPreConnectEvent
 import io.getquill.{SnakeCase, SqliteDialect}
 import io.getquill.context.jdbc.JdbcContext
 
@@ -15,7 +13,7 @@ import scala.util.chaining._
 class ProfileService(implicit
     database: JdbcContext[SqliteDialect, SnakeCase],
     channelService: ChannelService
-) extends Event.Handler {
+) {
   import channelService.{channelsByName, defaultChannel}
   import database._
 
@@ -28,10 +26,10 @@ class ProfileService(implicit
   def defaultTag: String = _defaultTag
   def profiles: Map[UUID, Profile] = _profiles
 
-  def readConfig(config: ChatConfig): Unit =
+  private[chat] def readConfig(config: ChatConfig): Unit =
     _defaultTag = config.defaultTag
 
-  def loadProfile(playerId: UUID): Option[Profile] = database
+  private[profile] def loadProfile(playerId: UUID): Option[Profile] = database
     .run { query[Profile].filter { _.playerId == lift(playerId) } }
     .headOption
     .tap {
@@ -39,12 +37,10 @@ class ProfileService(implicit
       case None          =>
     }
 
-  def saveProfile(profile: Profile): Unit = {
-    Future { database.run { query[Profile].insert(lift(profile)) } }
-    _profiles += (profile.playerId -> profile)
-  }
-
-  private def validateProfile(profile: Profile, playerName: String): Unit = {
+  private[profile] def validateProfile(
+      profile: Profile,
+      playerName: String
+  ): Unit = {
     var validatedProfile = profile
     validatedProfile =
       if (profile.name == playerName) validatedProfile
@@ -55,19 +51,27 @@ class ProfileService(implicit
     if (validatedProfile != profile) saveProfile(validatedProfile)
   }
 
-  override def handle(event: Event): Unit = event match {
-    case it: PlayerPreConnectEvent => handlePlayerPreConnect(it)
-    case _                         =>
+  private[profile] def createProfile(playerId: UUID, name: String): Unit = {
+    val profile = Profile(playerId, name, defaultTag, defaultChannel.name)
+    _profiles += (profile.playerId -> profile)
+    database.run { query[Profile].insert(lift(profile)) }
   }
 
-  private def handlePlayerPreConnect(event: PlayerPreConnectEvent): Unit = {
-    import event.{name, playerId}
-    _profiles.get(playerId).orElse(loadProfile(playerId)) match {
-      case Some(profile) =>
-        validateProfile(profile, name)
-      case None =>
-        Profile(playerId, name, defaultTag, defaultChannel.name)
-          .pipe { saveProfile }
+  private[profile] def invalidateProfile(playerId: UUID): Unit =
+    _profiles -= playerId
+
+  def saveProfile(profile: Profile): Unit = {
+    _profiles += (profile.playerId -> profile)
+    Future {
+      database.run {
+        query[Profile]
+          .insert { lift(profile) }
+          .onConflictUpdate(_.playerId)(
+            (_1, _2) => _1.name -> _2.name,
+            (_1, _2) => _1.tag -> _2.tag,
+            (_1, _2) => _1.home -> _2.home
+          )
+      }
     }
   }
 }
