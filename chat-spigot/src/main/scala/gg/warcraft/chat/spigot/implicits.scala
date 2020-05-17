@@ -53,10 +53,10 @@ object implicits {
   private implicit lazy val taskService: TaskService = _taskService
 
   // Chat
-  implicit val channelService: ChannelService = new ChannelService
-  implicit val profileService: ProfileService = new ProfileService
-  implicit val chatService: ChatService = new ChatService
+  implicit lazy val channelService: ChannelService = new ChannelService
+  implicit lazy val profileService: ProfileService = new ProfileService
+  implicit lazy val chatService: ChatService = new ChatService
 
-  implicit val messageAdapter: MessageAdapter = new SpigotMessageAdapter
-  implicit val chatEventMapper: Listener = new SpigotChatEventMapper
+  implicit lazy val messageAdapter: MessageAdapter = new SpigotMessageAdapter
+  implicit lazy val chatEventMapper: Listener = new SpigotChatEventMapper
 }
