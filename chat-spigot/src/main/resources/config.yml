@@ -3,7 +3,7 @@ defaultTag: ""
 
 globalChannels:
   - name: Global
-    aliases: [global]
+    aliases: [global, server]
     shortcut:
     color: GRAY
     format: "[<channel.name>] <sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
