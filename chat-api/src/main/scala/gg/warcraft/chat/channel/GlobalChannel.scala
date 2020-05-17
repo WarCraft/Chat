@@ -38,23 +38,21 @@ case class GlobalChannel(
   private var recipients: Set[UUID] = Set.empty
 
   private def authenticatePlayer(principal: Principal): Boolean = {
-    val playerId = principal.principalId.get
-
     def fixMissing(): Unit = {
-      logger warning s"$playerId was not in $name, but channel has no permission!"
-      recipients += playerId
+      logger warning s"${principal.id} was not in $name, but channel has no permission!"
+      recipients += principal.id
       val message = Message.server(successfullyJoined.format(name))
-      messageAdapter.send(message, playerId)
+      messageAdapter.send(message, principal.id)
     }
 
-    if (!recipients.contains(playerId)) {
+    if (!recipients.contains(principal.id)) {
       permission match {
         case Some(permission) =>
           if (principal.hasPermission(permission)) {
             fixMissing(); true
           } else {
             val message = Message.server(missingPermissions.format(name))
-            messageAdapter.send(message, playerId); false
+            messageAdapter.send(message, principal.id); false
           }
 
         case _ => fixMissing(); true
@@ -66,11 +64,11 @@ case class GlobalChannel(
       principal: Principal,
       command: Command,
       args: String*
-  ): Command.Result = principal.principalId match {
-    case Some(playerId) =>
+  ): Command.Result = principal match {
+    case player: Player =>
       val authenticated = authenticatePlayer(principal)
       if (authenticated) {
-        if (args.isEmpty) makeHome(playerId)
+        if (args.isEmpty) makeHome(player.id)
         else broadcast(principal, args.mkString(" "), recipients)
       }
       Command.success
@@ -82,41 +80,38 @@ case class GlobalChannel(
   }
 
   override def handle(event: Event): Unit = event match {
-    case it: PlayerConnectEvent            => handle(it)
-    case it: PlayerPermissionsChangedEvent => handle(it)
-    case it: PlayerDisconnectEvent         => handle(it)
+    case it: PlayerConnectEvent            => handlePlayerConnect(it)
+    case it: PlayerPermissionsChangedEvent => handlePlayerPermissions(it)
+    case it: PlayerDisconnectEvent         => handlePlayerDisconnect(it)
     case _                                 =>
   }
 
-  private def handle(event: PlayerConnectEvent): Unit = {
-    import event.playerId
+  private def handlePlayerConnect(event: PlayerConnectEvent): Unit = {
     permission match {
       case Some(permission) =>
-        val player: Player = playerService.getPlayer(playerId)
-        if (player.hasPermission(permission)) recipients += playerId
-      case None => recipients += playerId
+        val player: Player = playerService.getPlayer(event.player.id)
+        if (player.hasPermission(permission)) recipients += event.player.id
+      case None => recipients += event.player.id
     }
   }
 
-  private def handle(event: PlayerPermissionsChangedEvent): Unit = {
-    import event.playerId
+  private def handlePlayerPermissions(event: PlayerPermissionsChangedEvent): Unit = {
     permission match {
       case Some(permission) =>
-        val player: Player = playerService.getPlayer(playerId)
-        if (recipients.contains(playerId)) {
-          if (!player.hasPermission(permission)) recipients -= playerId
-        } else if (player.hasPermission(permission)) recipients += playerId
+        val player: Player = playerService.getPlayer(event.player.id)
+        if (recipients.contains(event.player.id)) {
+          if (!player.hasPermission(permission)) recipients -= event.player.id
+        } else if (player.hasPermission(permission)) recipients += event.player.id
       case None =>
     }
   }
 
-  private def handle(event: PlayerDisconnectEvent): Unit = {
-    import event.playerId
+  private def handlePlayerDisconnect(event: PlayerDisconnectEvent): Unit = {
     permission match {
       case Some(permission) =>
-        val player: Player = playerService.getPlayer(playerId)
-        if (player.hasPermission(permission)) recipients -= playerId
-      case None => recipients -= playerId
+        val player: Player = playerService.getPlayer(event.player.id)
+        if (player.hasPermission(permission)) recipients -= event.player.id
+      case None => recipients -= event.player.id
     }
   }
 }

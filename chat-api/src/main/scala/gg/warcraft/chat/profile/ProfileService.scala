@@ -6,19 +6,21 @@ import gg.warcraft.chat.ChatConfig
 import gg.warcraft.chat.channel.ChannelService
 import gg.warcraft.monolith.api.core.event.Event
 import gg.warcraft.monolith.api.player.PlayerPreConnectEvent
-import gg.warcraft.monolith.api.util.Ops._
+import io.getquill.{SnakeCase, SqliteDialect}
 import io.getquill.context.jdbc.JdbcContext
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.chaining._
 
 class ProfileService(implicit
-    database: JdbcContext[_, _],
-    context: ExecutionContext,
+    database: JdbcContext[SqliteDialect, SnakeCase],
     channelService: ChannelService
 ) extends Event.Handler {
   import channelService.{channelsByName, defaultChannel}
   import database._
+
+  private implicit val executionContext: ExecutionContext =
+    ExecutionContext.global
 
   private var _defaultTag: String = _
   private var _profiles: Map[UUID, Profile] = Map.empty
@@ -54,17 +56,18 @@ class ProfileService(implicit
   }
 
   override def handle(event: Event): Unit = event match {
-    case it: PlayerPreConnectEvent => handle(it)
+    case it: PlayerPreConnectEvent => handlePlayerPreConnect(it)
     case _                         =>
   }
 
-  private def handle(event: PlayerPreConnectEvent): Unit = {
+  private def handlePlayerPreConnect(event: PlayerPreConnectEvent): Unit = {
     import event.{name, playerId}
     _profiles.get(playerId).orElse(loadProfile(playerId)) match {
       case Some(profile) =>
         validateProfile(profile, name)
       case None =>
-        saveProfile <| Profile(playerId, name, defaultTag, defaultChannel.name)
+        Profile(playerId, name, defaultTag, defaultChannel.name)
+          .pipe { saveProfile }
     }
   }
 }

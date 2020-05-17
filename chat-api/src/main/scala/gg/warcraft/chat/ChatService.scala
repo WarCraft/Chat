@@ -7,7 +7,7 @@ import gg.warcraft.chat.profile.ProfileService
 import gg.warcraft.monolith.api.core.command.CommandPreExecuteEvent
 import gg.warcraft.monolith.api.core.event.{Event, PreEvent}
 import gg.warcraft.monolith.api.core.task.TaskService
-import gg.warcraft.monolith.api.util.Ops._
+import gg.warcraft.monolith.api.util.chaining._
 
 class ChatService(implicit
     taskService: TaskService,

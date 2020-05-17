@@ -28,13 +28,12 @@ case class LocalChannel(
       sender: Principal,
       command: Command,
       args: String*
-  ): Command.Result = sender.principalId match {
-    case Some(playerId) =>
+  ): Command.Result = sender match {
+    case player: Player =>
       if (args.isEmpty) {
-        makeHome(playerId)
+        makeHome(player.id)
         Command.success
       } else {
-        val player = playerService.getPlayer(playerId)
         val recipients = entityService
           .getNearbyEntities(player.location, radius)
           .filter { _.isInstanceOf[Player] }
@@ -42,7 +41,6 @@ case class LocalChannel(
         broadcast(sender, args.mkString(" "), recipients)
         Command.success
       }
-
     case _ => Command.playersOnly
   }
 }

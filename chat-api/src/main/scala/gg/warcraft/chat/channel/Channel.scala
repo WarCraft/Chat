@@ -7,7 +7,7 @@ import gg.warcraft.chat.profile.ProfileService
 import gg.warcraft.monolith.api.core.{ColorCode, Message}
 import gg.warcraft.monolith.api.core.auth.Principal
 import gg.warcraft.monolith.api.core.command.Command
-import gg.warcraft.monolith.api.util.Ops._
+import gg.warcraft.monolith.api.util.chaining._
 
 trait Channel extends Command.Handler {
   private final val homeMessage = ChatMessage.home(this)
@@ -28,12 +28,11 @@ trait Channel extends Command.Handler {
       profileService: ProfileService,
       messageAdapter: MessageAdapter
   ): Unit = {
-    val message = sender.principalId match {
-      case Some(playerId) =>
-        val profile = profileService.profiles(playerId)
+    val message =
+      if (sender.isPlayer) {
+        val profile = profileService.profiles(sender.id)
         ChatMessage(this, profile, text)
-      case _ => Message.server(text)
-    }
+      } else Message.server(text)
 
     recipients.foreach { messageAdapter.send(message, _) }
     if (recipients.size == 1) sender.sendMessage(ChatMessage.mute)
