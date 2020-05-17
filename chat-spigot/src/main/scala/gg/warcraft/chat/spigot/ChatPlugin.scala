@@ -1,29 +1,25 @@
 package gg.warcraft.chat.spigot
 
-import gg.warcraft.chat.{ ChatConfig, ChatService }
-import gg.warcraft.chat.channel.ChannelService
-import gg.warcraft.chat.message.MessageAdapter
-import gg.warcraft.chat.profile.ProfileService
-import gg.warcraft.monolith.spigot.Codecs.Circe._
+import gg.warcraft.chat.ChatConfig
+import gg.warcraft.monolith.api.core.Codecs.Circe._
 import gg.warcraft.monolith.spigot.SpigotMonolithPlugin
 import io.circe.generic.auto._
-import io.getquill.context.jdbc.JdbcContext
-import io.getquill.{ SnakeCase, SqliteDialect }
-import org.bukkit.event.Listener
+import io.getquill.{SnakeCase, SqliteDialect}
 
 class ChatPlugin extends SpigotMonolithPlugin {
-  override def onEnable(): Unit = {
-    implicit val database: JdbcContext[_, _] =
+  import implicits._
+
+  override def onLoad(): Unit = {
+    super.onLoad()
+
+    implicit val databaseContext: DatabaseContext =
       initDatabase(SqliteDialect, SnakeCase, getDataFolder)
+    upgradeDatabase(getDataFolder, getClassLoader)
 
-    // initialize services
-    implicit val channelService: ChannelService = new ChannelService
-    implicit val profileService: ProfileService = new ProfileService
-    implicit val chatService: ChatService = new ChatService
+    implicits.init()
+  }
 
-    implicit val messageAdapter: MessageAdapter = new SpigotMessageAdapter
-    implicit val chatEventMapper: Listener = new SpigotChatEventMapper
-
+  override def onEnable(): Unit = {
     // read config
     val config = parseConfig[ChatConfig](getConfig.saveToString)
     channelService.readConfig(config)

@@ -6,7 +6,7 @@ import gg.warcraft.chat.message.MessageAdapter
 import gg.warcraft.monolith.api.core.Message
 import gg.warcraft.monolith.api.core.auth.AuthService
 import gg.warcraft.monolith.api.player.PlayerService
-import gg.warcraft.monolith.api.util.Ops._
+import gg.warcraft.monolith.api.util.chaining._
 import org.bukkit.Server
 
 import scala.jdk.CollectionConverters._
