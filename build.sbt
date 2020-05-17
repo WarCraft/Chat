@@ -12,6 +12,8 @@ lazy val commonSettings = Seq(
 
 lazy val assemblySettings = Seq(
   assemblyJarName in assembly := s"${name.value}-${version.value}-all.jar",
+  assemblyOption in assembly :=
+    (assemblyOption in assembly).value.copy(includeScala = false),
   assemblyMergeStrategy in assembly := {
     case PathList("META-INF", it @ _*) => MergeStrategy.discard
     case "module-info.class"           => MergeStrategy.discard
@@ -20,7 +22,7 @@ lazy val assemblySettings = Seq(
 )
 
 lazy val commonDependencies = Seq(
-  "gg.warcraft" %% "monolith-api" % "15.0.0-SNAPSHOT",
+  "gg.warcraft" %% "monolith-api" % "15.0.0-SNAPSHOT" % Provided,
   "org.scalatest" %% "scalatest" % "3.0.8" % Test
 )
 
