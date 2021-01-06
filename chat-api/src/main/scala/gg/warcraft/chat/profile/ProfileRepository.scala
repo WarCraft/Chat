@@ -24,13 +24,12 @@
 
 package gg.warcraft.chat.profile
 
-import java.util.UUID
-
 import com.typesafe.config.Config
 import io.getquill._
 import io.getquill.context.jdbc.JdbcContext
 import io.getquill.context.sql.idiom.SqlIdiom
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 trait ProfileRepository {
@@ -59,7 +58,7 @@ private trait ProfileContext[I <: SqlIdiom, N <: NamingStrategy] {
   }
 }
 
-private[monolith] class PostgresProfileRepository(
+private[chat] class PostgresProfileRepository(
     config: Config
 ) extends ProfileRepository {
   private val database = new PostgresJdbcContext[SnakeCase](SnakeCase, config)
@@ -67,7 +66,7 @@ private[monolith] class PostgresProfileRepository(
   import database._
 
   override def load(id: UUID): Option[Profile] =
-    run { loadProfile(query[Profile], lift(id)) }
+    run { loadProfile(query[Profile], lift(id)) }.headOption
 
   override def save(profile: Profile)(implicit
       context: ExecutionContext = ExecutionContext.global
@@ -76,7 +75,7 @@ private[monolith] class PostgresProfileRepository(
   }
 }
 
-private[monolith] class SqliteProfileRepository(
+private[chat] class SqliteProfileRepository(
     config: Config
 ) extends ProfileRepository {
   private val database = new SqliteJdbcContext[SnakeCase](SnakeCase, config)
@@ -84,7 +83,7 @@ private[monolith] class SqliteProfileRepository(
   import database._
 
   override def load(id: UUID): Option[Profile] =
-    run { loadProfile(query[Profile], lift(id)) }
+    run { loadProfile(query[Profile], lift(id)) }.headOption
 
   override def save(profile: Profile)(implicit
       context: ExecutionContext = ExecutionContext.global

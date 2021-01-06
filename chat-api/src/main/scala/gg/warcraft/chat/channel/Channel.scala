@@ -24,25 +24,25 @@
 
 package gg.warcraft.chat.channel
 
-import java.util.UUID
-
 import gg.warcraft.chat.message.{ChatMessage, MessageAdapter}
 import gg.warcraft.chat.profile.ProfileService
-import gg.warcraft.monolith.api.core.{ColorCode, Message}
 import gg.warcraft.monolith.api.core.auth.Principal
 import gg.warcraft.monolith.api.core.command.Command
+import gg.warcraft.monolith.api.core.{ColorCode, Message}
 import gg.warcraft.monolith.api.util.chaining._
+
+import java.util.UUID
 
 trait Channel extends Command.Handler {
   private final val homeMessage = ChatMessage.home(this)
 
   val name: String
-  val aliases: Set[String]
+  val aliases: List[String]
   val shortcut: Option[String]
   val color: ColorCode
   val format: String
 
-  val command: Command = Command(name, aliases.toList, "")
+  val command: Command = Command(name, aliases, "")
 
   def broadcast(
       sender: Principal,

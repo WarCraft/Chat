@@ -25,8 +25,12 @@
 package gg.warcraft.chat
 
 import gg.warcraft.chat.channel.{GlobalChannel, LocalChannel}
+import gg.warcraft.monolith.api.core.DatabaseConfig
 
 case class ChatConfig(
+    // Monolith
+    database: DatabaseConfig,
+    // Chat
     defaultChannel: String,
     defaultTag: String,
     globalChannels: List[GlobalChannel],

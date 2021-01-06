@@ -25,25 +25,22 @@
 package gg.warcraft.chat.spigot
 
 import gg.warcraft.chat.ChatConfig
-import gg.warcraft.chat.profile.ProfileCacheHandler
+import gg.warcraft.chat.profile.{
+  PostgresProfileRepository, ProfileCacheHandler, ProfileRepository,
+  SqliteProfileRepository
+}
 import gg.warcraft.monolith.api.core.Codecs.Circe._
-import gg.warcraft.monolith.api.core.ColorCode
+import gg.warcraft.monolith.api.core.{ColorCode, DatabaseConfig}
 import gg.warcraft.monolith.spigot.SpigotMonolithPlugin
 import gg.warcraft.monolith.spigot.implicits._
+import io.circe._
 import io.circe.generic.auto._
-import io.circe.Decoder
-import io.getquill.{SnakeCase, SqliteDialect}
 
 class ChatPlugin extends SpigotMonolithPlugin {
   import implicits._
 
   override def onLoad(): Unit = {
     super.onLoad()
-
-    implicit val databaseContext: DatabaseContext =
-      initDatabase(SqliteDialect, SnakeCase, getDataFolder)
-    upgradeDatabase(getDataFolder, getClassLoader)
-
     implicits.init()
   }
 
@@ -55,9 +52,31 @@ class ChatPlugin extends SpigotMonolithPlugin {
     channelService.readConfig(config)
     profileService.readConfig(config)
 
+    upgradeDatabase(config.database, getDataFolder, getClassLoader)
+    val repositories = configureRepositories(config.database)
+    implicits.configure(config, repositories)
+
     // subscribe handlers
     eventService.subscribe(chatService)
     eventService.subscribe(new ProfileCacheHandler)
     this.subscribe(chatEventMapper)
   }
+
+  private def configureRepositories(config: DatabaseConfig): (
+      ProfileRepository,
+      Unit
+  ) =
+    if (config.embedded) {
+      val sqliteConfig = parseDatabaseConfig(config, getDataFolder)
+      (
+        new SqliteProfileRepository(sqliteConfig),
+        ()
+      )
+    } else {
+      val postgresConfig = parseDatabaseConfig(config, getDataFolder)
+      (
+        new PostgresProfileRepository(postgresConfig),
+        ()
+      )
+    }
 }

@@ -24,23 +24,20 @@
 
 package gg.warcraft.chat.channel
 
-import java.util.UUID
-import java.util.logging.Logger
-
 import gg.warcraft.chat.message.MessageAdapter
 import gg.warcraft.chat.profile.ProfileService
-import gg.warcraft.monolith.api.core.{ColorCode, Message}
 import gg.warcraft.monolith.api.core.auth.Principal
 import gg.warcraft.monolith.api.core.command.Command
 import gg.warcraft.monolith.api.core.event.Event
-import gg.warcraft.monolith.api.player.{
-  Player, PlayerConnectEvent, PlayerDisconnectEvent, PlayerPermissionsChangedEvent,
-  PlayerService
-}
+import gg.warcraft.monolith.api.core.{ColorCode, Message}
+import gg.warcraft.monolith.api.player._
+
+import java.util.UUID
+import java.util.logging.Logger
 
 case class GlobalChannel(
     name: String,
-    aliases: Set[String],
+    aliases: List[String],
     shortcut: Option[String],
     color: ColorCode,
     format: String,

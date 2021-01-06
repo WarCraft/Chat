@@ -24,29 +24,28 @@
 
 package gg.warcraft.chat.spigot
 
-import java.util.logging.Logger
-
-import gg.warcraft.chat.ChatService
 import gg.warcraft.chat.channel.ChannelService
 import gg.warcraft.chat.message.MessageAdapter
-import gg.warcraft.chat.profile.ProfileService
+import gg.warcraft.chat.profile.{ProfileRepository, ProfileService}
+import gg.warcraft.chat.{ChatConfig, ChatService}
+import gg.warcraft.monolith.api.core.command.CommandService
 import gg.warcraft.monolith.api.core.event.EventService
 import gg.warcraft.monolith.api.core.task.TaskService
 import gg.warcraft.monolith.spigot.implicits._
-import io.getquill.{SnakeCase, SqliteDialect}
-import io.getquill.context.jdbc.JdbcContext
 import org.bukkit.Server
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 
+import java.util.logging.Logger
+
 object implicits {
-  private[spigot] type DatabaseContext = JdbcContext[SqliteDialect, SnakeCase]
+  private var _config: ChatConfig = _
 
   private var _server: Server = _
   private var _plugin: Plugin = _
   private var _logger: Logger = _
 
-  private var _database: DatabaseContext = _
+  private var _commandService: CommandService = _
   private var _eventService: EventService = _
   private var _taskService: TaskService = _
 
@@ -54,16 +53,29 @@ object implicits {
       server: Server,
       plugin: Plugin,
       logger: Logger,
-      database: DatabaseContext,
+      commandService: CommandService,
       eventService: EventService,
       taskService: TaskService
   ): Unit = {
     _server = server
     _plugin = plugin
     _logger = logger
-    _database = database
+    _commandService = commandService
     _eventService = eventService
     _taskService = taskService
+  }
+
+  private var _profileRepository: ProfileRepository = _
+
+  private[spigot] def configure(
+      config: ChatConfig,
+      repositories: (
+          ProfileRepository,
+          Unit
+      )
+  ): Unit = {
+    _config = config
+    _profileRepository = repositories._1
   }
 
   // Spigot
@@ -71,10 +83,14 @@ object implicits {
   private implicit lazy val plugin: Plugin = _plugin
   private implicit lazy val logger: Logger = _logger
 
-  // Core
-  private implicit lazy val database: DatabaseContext = _database
+  // Monolith
+  private implicit lazy val commandService: CommandService = commandService
   private implicit lazy val eventService: EventService = _eventService
   private implicit lazy val taskService: TaskService = _taskService
+
+  // Persistence
+  private implicit lazy val profileRepository: ProfileRepository =
+    _profileRepository
 
   // Chat
   implicit lazy val channelService: ChannelService = new ChannelService
