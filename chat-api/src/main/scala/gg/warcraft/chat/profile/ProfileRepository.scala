@@ -30,14 +30,13 @@ import io.getquill.context.jdbc.JdbcContext
 import io.getquill.context.sql.idiom.SqlIdiom
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 trait ProfileRepository {
   def load(id: UUID): Option[Profile]
 
-  def save(profile: Profile)(implicit
-      context: ExecutionContext = ExecutionContext.global
-  ): Future[Unit]
+  def save(profile: Profile): Future[Unit]
 }
 
 private trait ProfileContext[I <: SqlIdiom, N <: NamingStrategy] {
@@ -68,9 +67,7 @@ private[chat] class PostgresProfileRepository(
   override def load(id: UUID): Option[Profile] =
     run { loadProfile(query[Profile], lift(id)) }.headOption
 
-  override def save(profile: Profile)(implicit
-      context: ExecutionContext = ExecutionContext.global
-  ): Future[Unit] = Future {
+  override def save(profile: Profile): Future[Unit] = Future {
     run { upsertProfile(query[Profile], lift(profile)) }
   }
 }
@@ -85,9 +82,7 @@ private[chat] class SqliteProfileRepository(
   override def load(id: UUID): Option[Profile] =
     run { loadProfile(query[Profile], lift(id)) }.headOption
 
-  override def save(profile: Profile)(implicit
-      context: ExecutionContext = ExecutionContext.global
-  ): Future[Unit] = Future {
+  override def save(profile: Profile): Future[Unit] = Future {
     run { upsertProfile(query[Profile], lift(profile)) }
   }
 }
