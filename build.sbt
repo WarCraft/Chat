@@ -46,13 +46,3 @@ lazy val spigot = (project in file("chat-spigot"))
     )
   )
   .dependsOn(api)
-
-lazy val akka = (project in file("chat-akka"))
-  .settings(
-    name := "chat-akka",
-    commonSettings,
-    libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-actor-typed" % "2.6.3",
-      "com.typesafe.akka" %% "akka-persistence-typed" % "2.6.3"
-    )
-  )
