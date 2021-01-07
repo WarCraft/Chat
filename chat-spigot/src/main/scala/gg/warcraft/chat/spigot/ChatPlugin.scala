@@ -29,14 +29,12 @@ import gg.warcraft.chat.profile.{
   PostgresProfileRepository, ProfileCacheHandler, ProfileRepository,
   SqliteProfileRepository
 }
-import gg.warcraft.monolith.api.core.Codecs.Circe._
-import gg.warcraft.monolith.api.core.{ColorCode, DatabaseConfig}
+import gg.warcraft.monolith.api.core.DatabaseConfig
 import gg.warcraft.monolith.spigot.SpigotMonolithPlugin
-import gg.warcraft.monolith.spigot.implicits._
-import io.circe._
 import io.circe.generic.auto._
 
 class ChatPlugin extends SpigotMonolithPlugin {
+  import gg.warcraft.monolith.spigot.implicits._
   import implicits._
 
   override def onLoad(): Unit = {
@@ -45,18 +43,17 @@ class ChatPlugin extends SpigotMonolithPlugin {
   }
 
   override def onEnable(): Unit = {
-    implicit val colorDecoder: Decoder[ColorCode] = enumDecoder(ColorCode.valueOf)
-
-    // read config
+    import gg.warcraft.monolith.api.util.codecs.circe._
+    import gg.warcraft.monolith.api.util.codecs.monolith._
     val config = parseConfig[ChatConfig](getConfig.saveToString)
-    channelService.readConfig(config)
-    profileService.readConfig(config)
 
     upgradeDatabase(config.database, getDataFolder, getClassLoader)
     val repositories = configureRepositories(config.database)
     implicits.configure(config, repositories)
 
-    // subscribe handlers
+    channelService.readConfig(config)
+    profileService.readConfig(config)
+
     eventService.subscribe(chatService)
     eventService.subscribe(new ProfileCacheHandler)
     this.subscribe(chatEventMapper)
