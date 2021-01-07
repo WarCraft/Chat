@@ -1,9 +1,24 @@
-defaultChannel: Global
+database:
+  # if embedded is set to yes the plugin will create an SQLite database
+  # in the plugin data folder and doesn't require any other setup.
+  embedded: yes
+  # if embedded is set to no the plugin will attempt to connect to a
+  # hosted database using any of the following settings:
+  postgres: ~
+#    host: localhost
+#    port: 5432
+#    database: postgres
+#    user: postgres
+#    password: postgres
+#    ssl: yes
+
 defaultTag: ""
+
+defaultChannel: Global
 
 globalChannels:
   - name: Global
-    aliases: [global, server]
+    aliases: [ global, server ]
     shortcut:
     color: GRAY
     format: "[<channel.name>] <sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
@@ -11,7 +26,7 @@ globalChannels:
 
 localChannels:
   - name: Local
-    aliases: [local, say, s]
+    aliases: [ local, say, s ]
     shortcut: "(("
     color: WHITE
     format: "<sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
