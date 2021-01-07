@@ -31,5 +31,7 @@ settings.json
 /target/
 */target/
 
+.bsp/
+
 # Mac
 **/.DS_Store
