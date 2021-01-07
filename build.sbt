@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   organization := "gg.warcraft",
   version := "15.0.0-SNAPSHOT",
-  scalaVersion := "2.13.2",
+  scalaVersion := "2.13.4",
   scalacOptions ++= Seq(
     "-language:implicitConversions"
   ),
@@ -21,16 +21,15 @@ lazy val assemblySettings = Seq(
   }
 )
 
-lazy val commonDependencies = Seq(
-  "gg.warcraft" %% "monolith-api" % "15.0.0-SNAPSHOT" % Provided,
-  "org.scalatest" %% "scalatest" % "3.0.8" % Test
-)
-
 lazy val api = (project in file("chat-api"))
   .settings(
     name := "chat-api",
     commonSettings,
-    libraryDependencies ++= commonDependencies
+    libraryDependencies ++= Seq(
+      "gg.warcraft" %% "monolith-api" % "15.0.0-SNAPSHOT" % Provided
+    ) ++ Seq(
+      "org.scalatest" %% "scalatest" % "3.2.+" % Test
+    )
   )
 
 lazy val spigot = (project in file("chat-spigot"))
@@ -41,7 +40,7 @@ lazy val spigot = (project in file("chat-spigot"))
     resolvers ++= Seq(
       "PaperMC" at "https://papermc.io/repo/repository/maven-public/"
     ),
-    libraryDependencies ++= commonDependencies ++ Seq(
+    libraryDependencies ++= Seq(
       "gg.warcraft" %% "monolith-spigot" % "15.0.0-SNAPSHOT" % Provided,
       "com.destroystokyo.paper" % "paper-api" % "1.15.2-R0.1-SNAPSHOT" % Provided
     )
@@ -52,7 +51,7 @@ lazy val akka = (project in file("chat-akka"))
   .settings(
     name := "chat-akka",
     commonSettings,
-    libraryDependencies ++= commonDependencies ++ Seq(
+    libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-actor-typed" % "2.6.3",
       "com.typesafe.akka" %% "akka-persistence-typed" % "2.6.3"
     )
