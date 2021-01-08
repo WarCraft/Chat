@@ -19,10 +19,10 @@ defaultChannel: Global
 globalChannels:
   - name: Global
     aliases: [ global, server ]
-    shortcut:
+    shortcut: ~
     color: GRAY
     format: "[<channel.name>] <sender.color>[<sender.tag>] <channel.color><sender.name>: <text>"
-    permission:
+    permission: ~
 
 localChannels:
   - name: Local
