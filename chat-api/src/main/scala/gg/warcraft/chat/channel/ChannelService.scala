@@ -38,7 +38,6 @@ class ChannelService(implicit
     logger: Logger,
     entityService: EntityService,
     playerService: PlayerService,
-    profileService: ProfileService,
     messageAdapter: MessageAdapter
 ) {
   private var _channels: List[Channel] = Nil
@@ -53,7 +52,11 @@ class ChannelService(implicit
   def channelsByShortcut: Map[String, Channel] = _channelsByShortcut
   def defaultChannel: Channel = _defaultChannel
 
-  def readConfig(config: ChatConfig): Unit = {
+  def readConfig(
+      config: ChatConfig
+  )(implicit
+      profileService: ProfileService
+  ): Unit = {
     var channels: List[Channel] = List.empty
     var channelsByName: Map[String, Channel] = Map.empty
     var channelsByAlias: Map[String, Channel] = Map.empty
