@@ -136,3 +136,14 @@ case class GlobalChannel(
     }
   }
 }
+
+object GlobalChannel {
+  case class Config(
+      name: String,
+      aliases: List[String],
+      shortcut: Option[String],
+      color: ColorCode,
+      format: String,
+      permission: Option[String]
+  )
+}

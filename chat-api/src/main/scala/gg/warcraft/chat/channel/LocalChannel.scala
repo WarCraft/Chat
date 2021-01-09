@@ -68,3 +68,14 @@ case class LocalChannel(
     case _ => Command.playersOnly
   }
 }
+
+object LocalChannel {
+  case class Config(
+      name: String,
+      aliases: List[String],
+      shortcut: Option[String],
+      color: ColorCode,
+      format: String,
+      radius: Float
+  )
+}

@@ -33,6 +33,6 @@ case class ChatConfig(
     // Chat
     defaultChannel: String,
     defaultTag: String,
-    globalChannels: List[GlobalChannel],
-    localChannels: List[LocalChannel]
+    globalChannels: List[GlobalChannel.Config],
+    localChannels: List[LocalChannel.Config]
 )

@@ -25,9 +25,22 @@
 package gg.warcraft.chat.channel
 
 import gg.warcraft.chat.ChatConfig
+import gg.warcraft.chat.message.MessageAdapter
+import gg.warcraft.chat.profile.ProfileService
 import gg.warcraft.monolith.api.core.event.EventService
+import gg.warcraft.monolith.api.entity.EntityService
+import gg.warcraft.monolith.api.player.PlayerService
 
-class ChannelService(implicit eventService: EventService) {
+import java.util.logging.Logger
+
+class ChannelService(implicit
+    eventService: EventService,
+    logger: Logger,
+    entityService: EntityService,
+    playerService: PlayerService,
+    profileService: ProfileService,
+    messageAdapter: MessageAdapter
+) {
   private var _channels: List[Channel] = Nil
   private var _channelsByName: Map[String, Channel] = Map.empty
   private var _channelsByAlias: Map[String, Channel] = Map.empty
@@ -46,7 +59,17 @@ class ChannelService(implicit eventService: EventService) {
     var channelsByAlias: Map[String, Channel] = Map.empty
     var channelsByShortcut: Map[String, Channel] = Map.empty
 
-    (config.globalChannels ++ config.localChannels).foreach { channel =>
+    val globalChannels = config.globalChannels.map { config =>
+      import config._
+      GlobalChannel(name, aliases, shortcut, color, format, permission)
+    }
+
+    val localChannels = config.localChannels.map { config =>
+      import config._
+      LocalChannel(name, aliases, shortcut, color, format, radius)
+    }
+
+    (globalChannels ++ localChannels).foreach { channel =>
       channels ::= channel
       channelsByName += (channel.name -> channel)
       channel.aliases.foreach { it =>
