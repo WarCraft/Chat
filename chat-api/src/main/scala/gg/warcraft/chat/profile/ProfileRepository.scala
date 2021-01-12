@@ -25,11 +25,13 @@
 package gg.warcraft.chat.profile
 
 import com.typesafe.config.Config
+import gg.warcraft.monolith.api.util.future.FutureOps
 import io.getquill._
 import io.getquill.context.jdbc.JdbcContext
 import io.getquill.context.sql.idiom.SqlIdiom
 
 import java.util.UUID
+import java.util.logging.Logger
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -42,11 +44,11 @@ trait ProfileRepository {
 private trait ProfileContext[I <: SqlIdiom, N <: NamingStrategy] {
   this: JdbcContext[I, N] =>
 
-  def loadProfile = quote {
+  def queryById = quote {
     (q: Query[Profile], id: UUID) => q.filter { _.playerId == id }
   }
 
-  def upsertProfile = quote {
+  def upsert = quote {
     (q: EntityQuery[Profile], profile: Profile) =>
       q.insert(profile)
         .onConflictUpdate(_.playerId)(
@@ -59,30 +61,34 @@ private trait ProfileContext[I <: SqlIdiom, N <: NamingStrategy] {
 
 private[chat] class PostgresProfileRepository(
     config: Config
+)(implicit
+    logger: Logger
 ) extends ProfileRepository {
   private val database = new PostgresJdbcContext[SnakeCase](SnakeCase, config)
     with ProfileContext[PostgresDialect, SnakeCase]
   import database._
 
   override def load(id: UUID): Option[Profile] =
-    run { loadProfile(query[Profile], lift(id)) }.headOption
+    run { queryById(query[Profile], lift(id)) }.headOption
 
-  override def save(profile: Profile): Future[Unit] = Future {
-    run { upsertProfile(query[Profile], lift(profile)) }
-  }
+  override def save(profile: Profile) = Future[Unit] {
+    run { upsert(query[Profile], lift(profile)) }
+  }.andThenLog("ProfileRepository", "upsert", profile)
 }
 
 private[chat] class SqliteProfileRepository(
     config: Config
+)(implicit
+    logger: Logger
 ) extends ProfileRepository {
   private val database = new SqliteJdbcContext[SnakeCase](SnakeCase, config)
     with ProfileContext[SqliteDialect, SnakeCase]
   import database._
 
   override def load(id: UUID): Option[Profile] =
-    run { loadProfile(query[Profile], lift(id)) }.headOption
+    run { queryById(query[Profile], lift(id)) }.headOption
 
-  override def save(profile: Profile): Future[Unit] = Future {
-    run { upsertProfile(query[Profile], lift(profile)) }
-  }
+  override def save(profile: Profile) = Future[Unit] {
+    run { upsert(query[Profile], lift(profile)) }
+  }.andThenLog("ProfileRepository", "upsert", profile)
 }
