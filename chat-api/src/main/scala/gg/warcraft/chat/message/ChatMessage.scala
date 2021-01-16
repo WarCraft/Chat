@@ -40,12 +40,12 @@ object ChatMessage {
       channel,
       Some(sender),
       text,
-      channel.color + channel.format
-        .replaceAll("<channel\\.name>", channel.name)
-        .replaceAll("<channel\\.color>", channel.color.toString)
-        .replaceAll("<sender\\.name>", sender.name)
-        .replaceAll("<sender\\.tag>", sender.tag)
-        .replaceAll("<text>", text)
+      channel.format
+        .replaceAll("\\$\\{channel\\.color}", channel.color.toString)
+        .replaceAll("\\$\\{channel\\.name}", channel.name)
+        .replaceAll("\\$\\{sender\\.tag}", sender.tag)
+        .replaceAll("\\$\\{sender\\.name}", sender.name)
+        .replaceAll("\\$\\{text}", text)
     )
 }
 
