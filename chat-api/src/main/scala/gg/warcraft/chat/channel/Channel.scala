@@ -32,6 +32,7 @@ import gg.warcraft.monolith.api.core.{ColorCode, Message}
 import gg.warcraft.monolith.api.util.chaining._
 
 import java.util.UUID
+import java.util.logging.Logger
 
 trait Channel extends Command.Handler {
   private final val homeMessage = ChatMessage.home(this)
@@ -49,6 +50,7 @@ trait Channel extends Command.Handler {
       text: String,
       recipients: Iterable[UUID]
   )(implicit
+      logger: Logger,
       profileService: ProfileService,
       messageAdapter: MessageAdapter
   ): Unit = {
@@ -61,7 +63,7 @@ trait Channel extends Command.Handler {
     recipients.foreach { messageAdapter.send(message, _) }
     if (recipients.size == 1) sender.sendMessage(ChatMessage.mute)
 
-    // NOTE option to log message here
+    logger.info(message.formatted)
   }
 
   def makeHome(

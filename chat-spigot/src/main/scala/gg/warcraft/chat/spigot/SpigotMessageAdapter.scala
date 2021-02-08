@@ -41,21 +41,15 @@ class SpigotMessageAdapter(implicit
     authService: AuthService,
     playerService: PlayerService
 ) extends MessageAdapter {
-  override def broadcast(message: Message): Unit = {
-    logger.info(message.formatted)
+  override def broadcast(message: Message): Unit =
     server.getOnlinePlayers.forEach { _.sendMessage(message.formatted) }
-  }
 
-  override def broadcastStaff(message: Message): Unit = {
-    logger.info(message.formatted)
+  override def broadcastStaff(message: Message): Unit =
     server.getOnlinePlayers.asScala
       .map { _.getUniqueId |> playerService.getPlayer }
       .filter { authService.isStaff }
       .foreach { _.sendMessage(message) }
-  }
 
-  override def send(message: Message, playerId: UUID): Unit = {
-    logger.info(message.formatted)
-    playerService.getPlayer(playerId) |> { _.sendMessage(message) }
-  }
+  override def send(message: Message, playerId: UUID): Unit =
+    playerService.getPlayer(playerId).sendMessage(message)
 }
