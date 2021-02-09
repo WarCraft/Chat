@@ -10,6 +10,7 @@ database:
 #    database: postgres
 #    user: postgres
 #    password: postgres
+#    poolSize: 4
 #    ssl: yes
 
 defaultTag: ""
