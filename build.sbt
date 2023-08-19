@@ -1,7 +1,7 @@
 lazy val commonSettings = Seq(
   organization := "gg.warcraft",
   version := "16.0.0-SNAPSHOT",
-  scalaVersion := "2.13.4",
+  scalaVersion := "2.13.11",
   scalacOptions ++= Seq(
     "-language:implicitConversions"
   ),
@@ -11,13 +11,12 @@ lazy val commonSettings = Seq(
 )
 
 lazy val assemblySettings = Seq(
-  assemblyJarName in assembly := s"${name.value}-${version.value}-all.jar",
-  assemblyOption in assembly :=
-    (assemblyOption in assembly).value.copy(includeScala = false),
-  assemblyMergeStrategy in assembly := {
-    case PathList("META-INF", it @ _*) => MergeStrategy.discard
+  assembly / assemblyJarName := s"${name.value}-${version.value}-all.jar",
+  assembly / assemblyOption ~= { _.withIncludeScala(false) },
+  assembly / assemblyMergeStrategy := {
+    case PathList("META-INF", _ @ _*) => MergeStrategy.discard
     case "module-info.class"           => MergeStrategy.discard
-    case it                            => (assemblyMergeStrategy in assembly).value(it)
+    case it                            => (assembly / assemblyMergeStrategy).value(it)
   }
 )
 
@@ -41,8 +40,8 @@ lazy val spigot = (project in file("chat-spigot"))
       "PaperMC" at "https://papermc.io/repo/repository/maven-public/"
     ),
     libraryDependencies ++= Seq(
-      "gg.warcraft" %% "monolith-spigot" % "16.0.0-SNAPSHOT" % Provided,
-      "com.destroystokyo.paper" % "paper-api" % "1.16.5-R0.1-SNAPSHOT" % Provided
+      "com.destroystokyo.paper" % "paper-api" % "1.16.5-R0.1-SNAPSHOT" % Provided,
+      "gg.warcraft" %% "monolith-spigot" % "16.0.0-SNAPSHOT" % Provided
     )
   )
   .dependsOn(api)
