@@ -50,7 +50,7 @@ private trait ProfileContext[I <: SqlIdiom, N <: NamingStrategy] {
 
   def upsert = quote {
     (q: EntityQuery[Profile], profile: Profile) =>
-      q.insert(profile)
+      q.insertValue(profile)
         .onConflictUpdate(_.playerId)(
           (t, e) => t.name -> e.name,
           (t, e) => t.tag -> e.tag,
